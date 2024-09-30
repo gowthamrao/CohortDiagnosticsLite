@@ -1,11 +1,40 @@
+#' Get Index Event Breakdown
+#'
+#' This function retrieves a breakdown of events (e.g., visits, procedures, drugs, observations, conditions, measurements) 
+#' associated with the index event (on first cohort start date of a subject) for a given set of cohorts.
+#'
+#' For each event type (visit, procedure, drug exposure, observation, condition, and measurement), both standard
+#' concept IDs and source concept IDs are retrieved, ensuring no duplication.
+#'
+#' @param cohortIds A vector of cohort IDs to filter the cohort table for inclusion.
+#' @template ConnectionDetails
+#' @template Connection
+#' @template CdmDatabaseSchema
+#' @template CohortDatabaseSchema
+#' @template CohortTable
+#' @template TempEmulationSchema
+#'
+#' @return A tibble containing the breakdown of counts for various clinical events. The tibble consists of:
+#' \item{conceptId}{The concept ID of the event (e.g., visit, procedure, drug).}
+#' \item{persons}{The number of distinct persons having the event.}
+#' \item{records}{The total number of records of the event.}
+#' \item{source}{The source of the event count, e.g., 'v1' for visit, 'v2' for visit source, 'p1' for procedure, etc.}
+#'
+#' @details
+#' This function processes clinical event data for cohorts, such as visits, procedures, drugs, observations, conditions, and 
+#' measurements, based on the index date (cohort start date). It counts the number of persons and records for each event and 
+#' combines them into a single tibble, distinguishing between standard and source concepts.
+#' 
+#' SQL queries are translated and executed using the `DatabaseConnector` package. Temporary tables are dropped after processing.
+#'
 #' @export
 getIndexEventBreakdown <- function(cohortIds,
                                    connectionDetails = NULL,
                                    connection = NULL,
                                    cdmDatabaseSchema,
                                    cohortDatabaseSchema,
-                                   cohortTableName,
-                                   tempEmulationationSchema = getOption("sqlRenderTempEmulationSchema")) {
+                                   cohortTable,
+                                   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema")) {
   if (is.null(connection)) {
     connection <- DatabaseConnector::connect(connectionDetails)
     on.exit(DatabaseConnector::disconnect(connection))
@@ -22,9 +51,9 @@ getIndexEventBreakdown <- function(cohortIds,
           	WHERE cohort_definition_id IN (@cohort_ids)
           	GROUP BY subject_id;",
     cohort_database_schema = cohortDatabaseSchema,
-    cohort_table = cohortTableName,
+    cohort_table = cohortTable,
     cohort_ids = cohortIds,
-    tempEmulationSchema = tempEmulationationSchema
+    tempEmulationSchema = TempEmulationSchema
   )
 
   visitCount <- DatabaseConnector::renderTranslateQuerySql(
