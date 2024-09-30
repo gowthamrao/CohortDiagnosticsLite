@@ -5,3 +5,39 @@ with_dbc_connection <- function(connection, code) {
   })
   eval(substitute(code), envir = connection, enclos = parent.frame())
 }
+
+#' Only works with postgres > 9.4
+.pgTableExists <- function(connection, schema, tableName) {
+  return(!is.na(
+    DatabaseConnector::renderTranslateQuerySql(
+      connection,
+      "SELECT to_regclass('@schema.@table');",
+      table = tableName,
+      schema = schema
+    )
+  )[[1]])
+}
+
+# Create a cohort definition set from test cohorts
+loadTestCohortDefinitionSet <- function(cohortIds = NULL, useSubsets = TRUE) {
+  if (grepl("testthat", getwd())) {
+    cohortPath <- "cohorts"
+  } else {
+    cohortPath <- file.path("tests", "testthat", "cohorts")
+  }
+
+  creationFile <- file.path(cohortPath, "CohortsToCreate.csv")
+  cohortDefinitionSet <- CohortGenerator::getCohortDefinitionSet(
+    settingsFileName = creationFile,
+    sqlFolder = cohortPath,
+    jsonFolder = cohortPath,
+    cohortFileNameValue = c("cohortId")
+  )
+  if (!is.null(cohortIds)) {
+    cohortDefinitionSet <- cohortDefinitionSet %>% dplyr::filter(cohortId %in% cohortIds)
+  }
+
+  cohortDefinitionSet$checksum <- computeChecksum(cohortDefinitionSet$sql)
+
+  return(cohortDefinitionSet)
+}
