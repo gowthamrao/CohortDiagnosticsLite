@@ -27,7 +27,6 @@ Remotes:
   ohdsi/Eunomia
 License: Apache License
 RoxygenNote: 7.3.2
-VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
 Language: en-US
