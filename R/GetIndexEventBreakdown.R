@@ -53,7 +53,7 @@ getIndexEventBreakdown <- function(cohortIds,
     cohort_database_schema = cohortDatabaseSchema,
     cohort_table = cohortTable,
     cohort_ids = cohortIds,
-    tempEmulationSchema = TempEmulationSchema
+    tempEmulationSchema = tempEmulationSchema
   )
 
   visitCount <- DatabaseConnector::renderTranslateQuerySql(
