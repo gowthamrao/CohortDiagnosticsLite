@@ -34,7 +34,7 @@ loadTestCohortDefinitionSet <- function(cohortIds = NULL, useSubsets = TRUE) {
     cohortFileNameValue = c("cohortId")
   )
   if (!is.null(cohortIds)) {
-    cohortDefinitionSet <- cohortDefinitionSet %>% dplyr::filter(cohortId %in% cohortIds)
+    cohortDefinitionSet <- cohortDefinitionSet |> dplyr::filter(cohortId %in% cohortIds)
   }
 
   cohortDefinitionSet$checksum <- computeChecksum(cohortDefinitionSet$sql)
