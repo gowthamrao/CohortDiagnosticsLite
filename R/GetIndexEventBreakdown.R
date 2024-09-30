@@ -35,11 +35,12 @@ getIndexEventBreakdown <- function(cohortIds,
                                    cohortDatabaseSchema,
                                    cohortTable,
                                    tempEmulationSchema = getOption("sqlRenderTempEmulationSchema")) {
-  dropTempEmulationTables <- FALSE
   if (is.null(connection)) {
     connection <- DatabaseConnector::connect(connectionDetails)
-    on.exit(DatabaseConnector::disconnect(connection))
-    dropTempEmulationTables <- TRUE
+    on.exit(
+      expr = DatabaseConnector::dropEmulatedTempTables(connection = connection, tempEmulationSchema = tempEmulationSchema)
+    )
+    on.exit(expr = DatabaseConnector::disconnect(connection), add = TRUE)
   }
   
   DatabaseConnector::renderTranslateExecuteSql(
@@ -297,10 +298,6 @@ getIndexEventBreakdown <- function(cohortIds,
     dplyr::tibble()
   
   DatabaseConnector::renderTranslateExecuteSql(connection = connection, sql = " DROP TABLE IF EXISTS #cohort_index;")
-  
-  if (dropTempEmulationTables) {
-    DatabaseConnector::dropEmulatedTempTables(connection = connection, tempEmulationSchema = tempEmulationSchema)
-  }
   
   output <- dplyr::bind_rows(
     visitCount |> dplyr::mutate(source = "v1"),

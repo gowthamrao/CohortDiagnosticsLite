@@ -6,7 +6,7 @@ test_that("Invoke cohort generation", {
     connectionDetails = connectionDetails,
     cohortTableNames = cohortTableNames,
     cohortDatabaseSchema = cohortDatabaseSchema,
-    incremental = TRUE
+    incremental = FALSE
   )
   
   # Generate the cohort set
@@ -16,7 +16,7 @@ test_that("Invoke cohort generation", {
     cohortDatabaseSchema = cohortDatabaseSchema,
     cohortTableNames = cohortTableNames,
     cohortDefinitionSet = cohortDefinitionSet,
-    incremental = TRUE
+    incremental = FALSE
   )
   
   
