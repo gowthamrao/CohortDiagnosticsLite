@@ -19,7 +19,9 @@ styler::style_pkg()
 OhdsiRTools::checkUsagePackage("CohortDiagnosticsLite")
 OhdsiRTools::updateCopyrightYearFolder()
 
-# Create Vignettes---------------------------------------------------------
+# Devtools check -----------------------------------------------------------
+devtools::spell_check()
+devtools::check()
 
 # Build site---------------------------------------------------------
 pkgdown::build_site()

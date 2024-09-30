@@ -1,3 +1,4 @@
+^man-roxygen$
 ^renv$
 ^renv\.lock$
 ^.*\.Rproj$
