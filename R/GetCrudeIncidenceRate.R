@@ -40,7 +40,7 @@ getCrudeIncidenceRate <-
       connection <- DatabaseConnector::connect(connectionDetails)
       on.exit(DatabaseConnector::disconnect(connection))
     }
-    
+
     sqlCalendar <-
       SqlRender::loadRenderTranslateSql(
         sqlFilename = "GetCalendarYearRange.sql",
@@ -48,13 +48,14 @@ getCrudeIncidenceRate <-
         dbms = connection@dbms,
         cdm_database_schema = cdmDatabaseSchema
       )
-    
+
     yearRange <-
       DatabaseConnector::querySql(connection, sqlCalendar, snakeCaseToCamelCase = TRUE)
-    
+
     calendarYears <-
       dplyr::tibble(calendarYear = as.integer(seq(
-        yearRange$startYear, yearRange$endYear, by = 1
+        yearRange$startYear, yearRange$endYear,
+        by = 1
       )))
     DatabaseConnector::insertTable(
       connection = connection,
@@ -66,7 +67,7 @@ getCrudeIncidenceRate <-
       tempEmulationSchema = tempEmulationSchema,
       camelCaseToSnakeCase = TRUE
     )
-    
+
     sql <-
       SqlRender::loadRenderTranslateSql(
         sqlFilename = "ComputeIncidenceRates.sql",
@@ -81,9 +82,9 @@ getCrudeIncidenceRate <-
         washout_period = washoutPeriod,
         cohort_id = cohortDefinitionId
       )
-    
+
     DatabaseConnector::executeSql(connection, sql)
-    
+
     sql <- "SELECT * FROM #rates_summary;"
     ratesSummary <-
       DatabaseConnector::renderTranslateQuerySql(
@@ -93,7 +94,7 @@ getCrudeIncidenceRate <-
         snakeCaseToCamelCase = TRUE
       ) %>%
       tidyr::tibble()
-    
+
     sql <- "TRUNCATE TABLE #rates_summary; DROP TABLE #rates_summary;"
     DatabaseConnector::renderTranslateExecuteSql(
       connection = connection,

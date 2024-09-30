@@ -1,6 +1,6 @@
 #' Get Index Event Breakdown
 #'
-#' This function retrieves a breakdown of events (e.g., visits, procedures, drugs, observations, conditions, measurements) 
+#' This function retrieves a breakdown of events (e.g., visits, procedures, drugs, observations, conditions, measurements)
 #' associated with the index event (on first cohort start date of a subject) for a given set of cohorts.
 #'
 #' For each event type (visit, procedure, drug exposure, observation, condition, and measurement), both standard
@@ -21,10 +21,10 @@
 #' \item{source}{The source of the event count, e.g., 'v1' for visit, 'v2' for visit source, 'p1' for procedure, etc.}
 #'
 #' @details
-#' This function processes clinical event data for cohorts, such as visits, procedures, drugs, observations, conditions, and 
-#' measurements, based on the index date (cohort start date). It counts the number of persons and records for each event and 
+#' This function processes clinical event data for cohorts, such as visits, procedures, drugs, observations, conditions, and
+#' measurements, based on the index date (cohort start date). It counts the number of persons and records for each event and
 #' combines them into a single tibble, distinguishing between standard and source concepts.
-#' 
+#'
 #' SQL queries are translated and executed using the `DatabaseConnector` package. Temporary tables are dropped after processing.
 #'
 #' @export
