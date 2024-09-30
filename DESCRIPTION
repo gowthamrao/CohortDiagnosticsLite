@@ -18,6 +18,8 @@ Imports:
     SqlRender,
     tidyr
 Suggests:
+  CohortGenerator,
+  digest,
   Eunomia,
   remotes,
   rmarkdown,

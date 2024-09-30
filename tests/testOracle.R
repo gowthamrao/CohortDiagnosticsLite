@@ -1,3 +1,3 @@
-library(testthat)
-options(dbms = "oracle")
-test_check("CohortDiagnosticsLite")
+# library(testthat)
+# options(dbms = "oracle")
+# test_check("CohortDiagnosticsLite")

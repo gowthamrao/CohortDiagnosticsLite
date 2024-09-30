@@ -27,7 +27,6 @@ getIndexEventBreakdown <- function(cohortIds,
     tempEmulationSchema = tempEmulationationSchema
   )
 
-  browser()
   visitCount <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
     sql = " SELECT visit_concept_id concept_id,
