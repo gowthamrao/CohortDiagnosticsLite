@@ -19,5 +19,6 @@
 
 #' @import DatabaseConnector
 #' @import dplyr
+#' @importFrom utils flush.console
 #' @importFrom rlang .data
 NULL

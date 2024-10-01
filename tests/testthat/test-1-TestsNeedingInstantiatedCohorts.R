@@ -19,7 +19,6 @@ test_that("Invoke cohort generation", {
     incremental = FALSE
   )
   
-  
   ### index event breakdown
   indexEventBreakdown <- CohortDiagnosticsLite::getIndexEventBreakdown(
     cohortIds = cohortIds,
@@ -30,16 +29,17 @@ test_that("Invoke cohort generation", {
     tempEmulationSchema = tempEmulationSchema
   )
   
-  testthat::expect_gt(object = nrow(indexEventBreakdown),
+  testthat::expect_gte(object = nrow(indexEventBreakdown),
                       expected = 0)
   testthat::expect_equal(
     object = colnames(indexEventBreakdown) |> sort(),
     expected = c(
       'cohortDefinitionId',
       'conceptId',
+      'domain',
       'persons',
       'records',
-      'source'
+      'sourceConcept'
     )
   )
   

@@ -13,6 +13,7 @@
 #' @template CohortDatabaseSchema
 #' @template CohortTable
 #' @template TempEmulationSchema
+#' @param databaseId A short string for identifying the database (e.g. 'Synpuf').
 #'
 #' @return A tibble containing the breakdown of counts for various clinical events. The tibble consists of:
 #' \item{conceptId}{The concept ID of the event (e.g., visit, procedure, drug).}
@@ -34,6 +35,7 @@ getIndexEventBreakdown <- function(cohortIds,
                                    cdmDatabaseSchema,
                                    cohortDatabaseSchema,
                                    cohortTable,
+                                   databaseId,
                                    tempEmulationSchema = getOption("sqlRenderTempEmulationSchema")) {
   if (is.null(connection)) {
     connection <- DatabaseConnector::connect(connectionDetails)
@@ -57,9 +59,13 @@ getIndexEventBreakdown <- function(cohortIds,
     cohort_database_schema = cohortDatabaseSchema,
     cohort_table = cohortTable,
     cohort_ids = cohortIds,
-    tempEmulationSchema = tempEmulationSchema
+    tempEmulationSchema = tempEmulationSchema,
+    progressBar = FALSE,
+    profile = FALSE,
+    reportOverallTime = FALSE
   )
   
+  updateProgress(" - working on visit domain (standard).")
   visitCount <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
     sql = " SELECT cohort_definition_id,
@@ -76,8 +82,10 @@ getIndexEventBreakdown <- function(cohortIds,
     tempEmulationSchema = tempEmulationSchema,
     snakeCaseToCamelCase = TRUE
   ) |>
-    dplyr::tibble()
+    dplyr::tibble() |>
+    dplyr::mutate(sourceConcept = 0)
   
+  updateProgress(" - working on visit domain (source).")
   visitSourceCount <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
     sql = " SELECT cohort_definition_id,
@@ -95,8 +103,10 @@ getIndexEventBreakdown <- function(cohortIds,
     tempEmulationSchema = tempEmulationSchema,
     snakeCaseToCamelCase = TRUE
   ) |>
-    dplyr::tibble()
+    dplyr::tibble() |>
+    dplyr::mutate(sourceConcept = 1)
   
+  updateProgress(" - working on procedure domain (standard).")
   procedureCount <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
     sql = " SELECT cohort_definition_id,
@@ -114,8 +124,10 @@ getIndexEventBreakdown <- function(cohortIds,
     tempEmulationSchema = tempEmulationSchema,
     snakeCaseToCamelCase = TRUE
   ) |>
-    dplyr::tibble()
+    dplyr::tibble() |>
+    dplyr::mutate(sourceConcept = 0)
   
+  updateProgress(" - working on procedure domain (source).")
   procedureSourceCount <-
     DatabaseConnector::renderTranslateQuerySql(
       connection = connection,
@@ -135,8 +147,10 @@ getIndexEventBreakdown <- function(cohortIds,
       tempEmulationSchema = tempEmulationSchema,
       snakeCaseToCamelCase = TRUE
     ) |>
-    dplyr::tibble()
+    dplyr::tibble() |>
+    dplyr::mutate(sourceConcept = 1)
   
+  updateProgress(" - working on drug domain (standard).")
   drugExposureCount <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
     sql = "SELECT cohort_definition_id,
@@ -154,8 +168,10 @@ getIndexEventBreakdown <- function(cohortIds,
     tempEmulationSchema = tempEmulationSchema,
     snakeCaseToCamelCase = TRUE
   ) |>
-    dplyr::tibble()
+    dplyr::tibble() |>
+    dplyr::mutate(sourceConcept = 0)
   
+  updateProgress(" - working on drug domain (source).")
   drugExposureSourceCount <-
     DatabaseConnector::renderTranslateQuerySql(
       connection = connection,
@@ -175,8 +191,10 @@ getIndexEventBreakdown <- function(cohortIds,
       tempEmulationSchema = tempEmulationSchema,
       snakeCaseToCamelCase = TRUE
     ) |>
-    dplyr::tibble()
+    dplyr::tibble() |>
+    dplyr::mutate(sourceConcept = 1)
   
+  updateProgress(" - working on observation domain (standard).")
   observationCount <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
     sql = "SELECT cohort_definition_id,
@@ -194,8 +212,10 @@ getIndexEventBreakdown <- function(cohortIds,
     tempEmulationSchema = tempEmulationSchema,
     snakeCaseToCamelCase = TRUE
   ) |>
-    dplyr::tibble()
+    dplyr::tibble() |>
+    dplyr::mutate(sourceConcept = 0)
   
+  updateProgress(" - working on observation domain (source).")
   observationSourceCount <-
     DatabaseConnector::renderTranslateQuerySql(
       connection = connection,
@@ -215,8 +235,10 @@ getIndexEventBreakdown <- function(cohortIds,
       tempEmulationSchema = tempEmulationSchema,
       snakeCaseToCamelCase = TRUE
     ) |>
-    dplyr::tibble()
+    dplyr::tibble() |>
+    dplyr::mutate(sourceConcept = 1)
   
+  updateProgress(" - working on condition domain (standard).")
   conditionCount <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
     sql = "SELECT cohort_definition_id,
@@ -234,8 +256,10 @@ getIndexEventBreakdown <- function(cohortIds,
     tempEmulationSchema = tempEmulationSchema,
     snakeCaseToCamelCase = TRUE
   ) |>
-    dplyr::tibble()
+    dplyr::tibble() |>
+    dplyr::mutate(sourceConcept = 0)
   
+  updateProgress(" - working on condition domain (source).")
   conditionSourceCount <-
     DatabaseConnector::renderTranslateQuerySql(
       connection = connection,
@@ -255,8 +279,10 @@ getIndexEventBreakdown <- function(cohortIds,
       tempEmulationSchema = tempEmulationSchema,
       snakeCaseToCamelCase = TRUE
     ) |>
-    dplyr::tibble()
+    dplyr::tibble() |>
+    dplyr::mutate(sourceConcept = 1)
   
+  updateProgress(" - working on measurement domain (standard).")
   measurementCount <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
     sql = "SELECT cohort_definition_id,
@@ -274,8 +300,10 @@ getIndexEventBreakdown <- function(cohortIds,
     tempEmulationSchema = tempEmulationSchema,
     snakeCaseToCamelCase = TRUE
   ) |>
-    dplyr::tibble()
+    dplyr::tibble() |>
+    dplyr::mutate(sourceConcept = 0)
   
+  updateProgress(" - working on measurement domain (source).")
   measurementSourceCount <-
     DatabaseConnector::renderTranslateQuerySql(
       connection = connection,
@@ -295,12 +323,20 @@ getIndexEventBreakdown <- function(cohortIds,
       tempEmulationSchema = tempEmulationSchema,
       snakeCaseToCamelCase = TRUE
     ) |>
-    dplyr::tibble()
+    dplyr::tibble() |>
+    dplyr::mutate(sourceConcept = 1)
   
-  DatabaseConnector::renderTranslateExecuteSql(connection = connection, sql = " DROP TABLE IF EXISTS #cohort_index;")
+  DatabaseConnector::renderTranslateExecuteSql(
+    connection = connection,
+    sql = " DROP TABLE IF EXISTS #cohort_index;",
+    progressBar = FALSE,
+    profile = FALSE,
+    reportOverallTime = FALSE
+  )
   
   output <- dplyr::bind_rows(
-    visitCount |> dplyr::mutate(source = "v1"),
+    visitCount |>
+      dplyr::mutate(domain = "v"),
     visitSourceCount |>
       dplyr::anti_join(
         visitCount |>
@@ -308,12 +344,13 @@ getIndexEventBreakdown <- function(cohortIds,
           dplyr::distinct(),
         by = c("cohortDefinitionId", "conceptId")
       ) |>
-      dplyr::mutate(source = "v2")
+      dplyr::mutate(domain = "v")
   )
   
   output <- dplyr::bind_rows(
     output,
-    procedureCount |> dplyr::mutate(source = "p1"),
+    procedureCount |>
+      dplyr::mutate(domain = "p"),
     procedureSourceCount |>
       dplyr::anti_join(
         procedureCount |>
@@ -321,12 +358,13 @@ getIndexEventBreakdown <- function(cohortIds,
           dplyr::distinct(),
         by = c("cohortDefinitionId", "conceptId")
       ) |>
-      dplyr::mutate(source = "p2")
+      dplyr::mutate(domain = "p")
   )
   
   output <- dplyr::bind_rows(
     output,
-    drugExposureCount |> dplyr::mutate(source = "d1"),
+    drugExposureCount |>
+      dplyr::mutate(domain = "p"),
     drugExposureSourceCount |>
       dplyr::anti_join(
         drugExposureCount |>
@@ -334,12 +372,13 @@ getIndexEventBreakdown <- function(cohortIds,
           dplyr::distinct(),
         by = c("cohortDefinitionId", "conceptId")
       ) |>
-      dplyr::mutate(source = "d2")
+      dplyr::mutate(domain = "p")
   )
   
   output <- dplyr::bind_rows(
     output,
-    observationCount |> dplyr::mutate(source = "o1"),
+    observationCount |>
+      dplyr::mutate(domain = "o"),
     observationSourceCount |>
       dplyr::anti_join(
         observationCount |>
@@ -347,12 +386,13 @@ getIndexEventBreakdown <- function(cohortIds,
           dplyr::distinct(),
         by = c("cohortDefinitionId", "conceptId")
       ) |>
-      dplyr::mutate(source = "o2")
+      dplyr::mutate(domain = "o")
   )
   
   output <- dplyr::bind_rows(
     output,
-    conditionCount |> dplyr::mutate(source = "c1"),
+    conditionCount |>
+      dplyr::mutate(domain = "c"),
     conditionSourceCount |>
       dplyr::anti_join(
         conditionCount |>
@@ -360,12 +400,12 @@ getIndexEventBreakdown <- function(cohortIds,
           dplyr::distinct(),
         by = c("cohortDefinitionId", "conceptId")
       ) |>
-      dplyr::mutate(source = "c2")
+      dplyr::mutate(domain = "c")
   )
   
   output <- dplyr::bind_rows(
     output,
-    measurementCount |> dplyr::mutate(source = "m1"),
+    measurementCount |> dplyr::mutate(domain = "m"),
     measurementSourceCount |>
       dplyr::anti_join(
         measurementCount |>
@@ -373,8 +413,13 @@ getIndexEventBreakdown <- function(cohortIds,
           dplyr::distinct(),
         by = c("cohortDefinitionId", "conceptId")
       ) |>
-      dplyr::mutate(source = "m2")
+      dplyr::mutate(domain = "m")
   )
+  
+  output <- output |> 
+    dplyr::mutate(databaseId = !!databaseId)
+  
+  flush.console()
   
   return(output)
 }

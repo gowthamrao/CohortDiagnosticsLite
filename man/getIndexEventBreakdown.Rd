@@ -11,6 +11,7 @@ getIndexEventBreakdown(
   cdmDatabaseSchema,
   cohortDatabaseSchema,
   cohortTable,
+  databaseId,
   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema")
 )
 }
@@ -35,6 +36,8 @@ this should include both the database and schema name, for example
 'scratch.dbo'.}
 
 \item{cohortTable}{The name of the cohort table.}
+
+\item{databaseId}{A short string for identifying the database (e.g. 'Synpuf').}
 
 \item{tempEmulationSchema}{Some database platforms like Oracle and Impala do not truly support
 temp tables. To emulate temp tables, provide a schema with write
