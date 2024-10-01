@@ -184,8 +184,8 @@ compareIndexEventBreakdown <- function(indexEventBreakdown,
   )
   
   # Calculate standardized differences
-  stdDiff <- computeStdDiff(targetProportion = targetData,
-                            comparatorProportion = comparatorData) |> 
+  stdDiff <- calculateStandardizedDifference(targetProportion = targetData,
+                                             comparatorProportion = comparatorData) |>
     dplyr::arrange(dplyr::desc(stdDiff))
   
   return(stdDiff)
