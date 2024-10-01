@@ -34,12 +34,15 @@ compareIndexEventBreakdown <- function(indexEventBreakdown,
                                        comparatorDatabaseId = targetDatabaseId,
                                        compareEntries = FALSE) {
   # Check that required columns exist in indexEventBreakdown
-  requiredColsIndexEvent <- c("cohortDefinitionId",
-                              "databaseId",
-                              if (compareEntries)
-                                "records"
-                              else
-                                "persons")
+  requiredColsIndexEvent <- c(
+    "cohortDefinitionId",
+    "databaseId",
+    if (compareEntries) {
+      "records"
+    } else {
+      "persons"
+    }
+  )
   missingColsIndexEvent <- setdiff(requiredColsIndexEvent, colnames(indexEventBreakdown))
   if (length(missingColsIndexEvent) > 0) {
     stop(paste(
@@ -47,13 +50,14 @@ compareIndexEventBreakdown <- function(indexEventBreakdown,
       paste(missingColsIndexEvent, collapse = ", ")
     ))
   }
-  
+
   # Check that required columns exist in cohortCount
-  requiredColsCohortCount <- c("cohortId", if (compareEntries)
+  requiredColsCohortCount <- c("cohortId", if (compareEntries) {
     "cohortEntries"
-    else
-      "cohortSubjects")
-  
+  } else {
+    "cohortSubjects"
+  })
+
   missingColsCohortCount <- setdiff(requiredColsCohortCount, colnames(cohortCount))
   if (length(missingColsCohortCount) > 0) {
     stop(paste(
@@ -61,7 +65,7 @@ compareIndexEventBreakdown <- function(indexEventBreakdown,
       paste(missingColsCohortCount, collapse = ", ")
     ))
   }
-  
+
   # Check that targetCohortId and comparatorCohortId exist in indexEventBreakdown
   availableCohorts <- unique(indexEventBreakdown$cohortDefinitionId)
   if (!(targetCohortId %in% availableCohorts)) {
@@ -80,7 +84,7 @@ compareIndexEventBreakdown <- function(indexEventBreakdown,
       )
     )
   }
-  
+
   # Check that database IDs exist in the data
   availableDatabases <- unique(indexEventBreakdown$databaseId)
   if (!(targetDatabaseId %in% availableDatabases)) {
@@ -99,7 +103,7 @@ compareIndexEventBreakdown <- function(indexEventBreakdown,
       )
     )
   }
-  
+
   # Helper function to process data
   processCohortData <- function(indexEventBreakdown,
                                 cohortCount,
@@ -112,16 +116,18 @@ compareIndexEventBreakdown <- function(indexEventBreakdown,
     } else {
       "cohortSubjects"
     }
-    
+
     countCol <- if (compareEntries) {
       "records"
     } else {
       "persons"
     }
-    
+
     output <- indexEventBreakdown |>
-      dplyr::filter(.data$cohortDefinitionId == cohortId,
-                    .data$databaseId %in% c(databaseId)) |>
+      dplyr::filter(
+        .data$cohortDefinitionId == cohortId,
+        .data$databaseId %in% c(databaseId)
+      ) |>
       dplyr::inner_join(
         cohortCount |>
           dplyr::select(
@@ -137,23 +143,27 @@ compareIndexEventBreakdown <- function(indexEventBreakdown,
         !!paste0(prefix, "DatabaseId") := .data$databaseId
       ) |>
       dplyr::mutate(!!paste0(prefix, "Mean") := !!rlang::sym(paste0(prefix, "Count")) / .data$cohortValue) |>
-      dplyr::select("conceptId",
-                    "sourceConcept",
-                    "domain",
-                    dplyr::all_of(dplyr::starts_with(prefix))) |>
+      dplyr::select(
+        "conceptId",
+        "sourceConcept",
+        "domain",
+        dplyr::all_of(dplyr::starts_with(prefix))
+      ) |>
       dplyr::tibble()
-    
+
     combis <- output |> dplyr::select("conceptId", "sourceConcept", "domain")
-    
-    if (combis |> nrow() > combis |> dplyr::distinct() |> nrow()) {
+
+    if (combis |> nrow() > combis |>
+      dplyr::distinct() |>
+      nrow()) {
       stop(
         "After filtering by cohortId and databaseId, the combination of conceptId, sourceConcept, domain is not unique."
       )
     }
-    
-    return(output)  # Return the output so that it's usable
+
+    return(output) # Return the output so that it's usable
   }
-  
+
   # Process target and comparator data
   targetData <- processCohortData(
     indexEventBreakdown =
@@ -168,7 +178,7 @@ compareIndexEventBreakdown <- function(indexEventBreakdown,
       compareEntries,
     prefix = "target"
   )
-  
+
   comparatorData <- processCohortData(
     indexEventBreakdown =
       indexEventBreakdown,
@@ -182,11 +192,13 @@ compareIndexEventBreakdown <- function(indexEventBreakdown,
       compareEntries,
     prefix = "comparator"
   )
-  
+
   # Calculate standardized differences
-  stdDiff <- calculateStandardizedDifference(targetProportion = targetData,
-                                             comparatorProportion = comparatorData) |>
+  stdDiff <- calculateStandardizedDifference(
+    targetProportion = targetData,
+    comparatorProportion = comparatorData
+  ) |>
     dplyr::arrange(dplyr::desc(stdDiff))
-  
+
   return(stdDiff)
 }

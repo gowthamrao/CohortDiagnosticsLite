@@ -32,5 +32,5 @@ test_that("Basic functionality works", {
   )
   expect_s3_class(result, "data.frame")
   expect_true(all(c("stdDiff") %in% colnames(result)))
-  expect_equal(nrow(result), 2)  # Two unique conceptId and sourceConcept combinations
+  expect_equal(nrow(result), 2) # Two unique conceptId and sourceConcept combinations
 })

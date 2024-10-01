@@ -36,7 +36,6 @@ getCrudeIncidenceRate <-
            washoutPeriod = 365,
            tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
            cohortTable) {
-    
     dropTempEmulationTables <- FALSE
     if (is.null(connection)) {
       connection <- DatabaseConnector::connect(connectionDetails)
@@ -96,7 +95,7 @@ getCrudeIncidenceRate <-
         tempEmulationSchema = tempEmulationSchema,
         snakeCaseToCamelCase = TRUE
       ) |>
-      tidyr::tibble() |> 
+      tidyr::tibble() |>
       dplyr::mutate(cohortDefinitionId = !!cohortDefinitionId)
 
     sql <- "TRUNCATE TABLE #rates_summary; DROP TABLE #rates_summary;"
@@ -107,7 +106,7 @@ getCrudeIncidenceRate <-
       reportOverallTime = FALSE,
       tempEmulationSchema = tempEmulationSchema
     )
-    
+
     if (dropTempEmulationTables) {
       DatabaseConnector::dropEmulatedTempTables(connection = connection, tempEmulationSchema = tempEmulationSchema)
     }

@@ -44,7 +44,7 @@ getIndexEventBreakdown <- function(cohortIds,
     )
     on.exit(expr = DatabaseConnector::disconnect(connection), add = TRUE)
   }
-  
+
   DatabaseConnector::renderTranslateExecuteSql(
     connection = connection,
     sql = " --HINT SORT_ON_KEY(INTERLEAVED:cohort_start_date)
@@ -64,7 +64,7 @@ getIndexEventBreakdown <- function(cohortIds,
     profile = FALSE,
     reportOverallTime = FALSE
   )
-  
+
   updateProgress(" - working on visit domain (standard).")
   visitCount <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
@@ -84,7 +84,7 @@ getIndexEventBreakdown <- function(cohortIds,
   ) |>
     dplyr::tibble() |>
     dplyr::mutate(sourceConcept = 0)
-  
+
   updateProgress(" - working on visit domain (source).")
   visitSourceCount <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
@@ -105,7 +105,7 @@ getIndexEventBreakdown <- function(cohortIds,
   ) |>
     dplyr::tibble() |>
     dplyr::mutate(sourceConcept = 1)
-  
+
   updateProgress(" - working on procedure domain (standard).")
   procedureCount <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
@@ -126,7 +126,7 @@ getIndexEventBreakdown <- function(cohortIds,
   ) |>
     dplyr::tibble() |>
     dplyr::mutate(sourceConcept = 0)
-  
+
   updateProgress(" - working on procedure domain (source).")
   procedureSourceCount <-
     DatabaseConnector::renderTranslateQuerySql(
@@ -149,7 +149,7 @@ getIndexEventBreakdown <- function(cohortIds,
     ) |>
     dplyr::tibble() |>
     dplyr::mutate(sourceConcept = 1)
-  
+
   updateProgress(" - working on drug domain (standard).")
   drugExposureCount <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
@@ -170,7 +170,7 @@ getIndexEventBreakdown <- function(cohortIds,
   ) |>
     dplyr::tibble() |>
     dplyr::mutate(sourceConcept = 0)
-  
+
   updateProgress(" - working on drug domain (source).")
   drugExposureSourceCount <-
     DatabaseConnector::renderTranslateQuerySql(
@@ -193,7 +193,7 @@ getIndexEventBreakdown <- function(cohortIds,
     ) |>
     dplyr::tibble() |>
     dplyr::mutate(sourceConcept = 1)
-  
+
   updateProgress(" - working on observation domain (standard).")
   observationCount <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
@@ -214,7 +214,7 @@ getIndexEventBreakdown <- function(cohortIds,
   ) |>
     dplyr::tibble() |>
     dplyr::mutate(sourceConcept = 0)
-  
+
   updateProgress(" - working on observation domain (source).")
   observationSourceCount <-
     DatabaseConnector::renderTranslateQuerySql(
@@ -237,7 +237,7 @@ getIndexEventBreakdown <- function(cohortIds,
     ) |>
     dplyr::tibble() |>
     dplyr::mutate(sourceConcept = 1)
-  
+
   updateProgress(" - working on condition domain (standard).")
   conditionCount <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
@@ -258,7 +258,7 @@ getIndexEventBreakdown <- function(cohortIds,
   ) |>
     dplyr::tibble() |>
     dplyr::mutate(sourceConcept = 0)
-  
+
   updateProgress(" - working on condition domain (source).")
   conditionSourceCount <-
     DatabaseConnector::renderTranslateQuerySql(
@@ -281,7 +281,7 @@ getIndexEventBreakdown <- function(cohortIds,
     ) |>
     dplyr::tibble() |>
     dplyr::mutate(sourceConcept = 1)
-  
+
   updateProgress(" - working on measurement domain (standard).")
   measurementCount <- DatabaseConnector::renderTranslateQuerySql(
     connection = connection,
@@ -302,7 +302,7 @@ getIndexEventBreakdown <- function(cohortIds,
   ) |>
     dplyr::tibble() |>
     dplyr::mutate(sourceConcept = 0)
-  
+
   updateProgress(" - working on measurement domain (source).")
   measurementSourceCount <-
     DatabaseConnector::renderTranslateQuerySql(
@@ -325,7 +325,7 @@ getIndexEventBreakdown <- function(cohortIds,
     ) |>
     dplyr::tibble() |>
     dplyr::mutate(sourceConcept = 1)
-  
+
   DatabaseConnector::renderTranslateExecuteSql(
     connection = connection,
     sql = " DROP TABLE IF EXISTS #cohort_index;",
@@ -333,7 +333,7 @@ getIndexEventBreakdown <- function(cohortIds,
     profile = FALSE,
     reportOverallTime = FALSE
   )
-  
+
   output <- dplyr::bind_rows(
     visitCount |>
       dplyr::mutate(domain = "v"),
@@ -346,7 +346,7 @@ getIndexEventBreakdown <- function(cohortIds,
       ) |>
       dplyr::mutate(domain = "v")
   )
-  
+
   output <- dplyr::bind_rows(
     output,
     procedureCount |>
@@ -360,7 +360,7 @@ getIndexEventBreakdown <- function(cohortIds,
       ) |>
       dplyr::mutate(domain = "p")
   )
-  
+
   output <- dplyr::bind_rows(
     output,
     drugExposureCount |>
@@ -374,7 +374,7 @@ getIndexEventBreakdown <- function(cohortIds,
       ) |>
       dplyr::mutate(domain = "p")
   )
-  
+
   output <- dplyr::bind_rows(
     output,
     observationCount |>
@@ -388,7 +388,7 @@ getIndexEventBreakdown <- function(cohortIds,
       ) |>
       dplyr::mutate(domain = "o")
   )
-  
+
   output <- dplyr::bind_rows(
     output,
     conditionCount |>
@@ -402,7 +402,7 @@ getIndexEventBreakdown <- function(cohortIds,
       ) |>
       dplyr::mutate(domain = "c")
   )
-  
+
   output <- dplyr::bind_rows(
     output,
     measurementCount |> dplyr::mutate(domain = "m"),
@@ -415,11 +415,11 @@ getIndexEventBreakdown <- function(cohortIds,
       ) |>
       dplyr::mutate(domain = "m")
   )
-  
-  output <- output |> 
+
+  output <- output |>
     dplyr::mutate(databaseId = !!databaseId)
-  
+
   flush.console()
-  
+
   return(output)
 }

@@ -30,25 +30,27 @@ calculateStandardizedDifference <- function(targetProportion, comparatorProporti
   if (!"targetMean" %in% colnames(targetProportion)) {
     stop("targetMean not found in targetProportion")
   }
-  
+
   if (!"comparatorMean" %in% colnames(comparatorProportion)) {
     stop("comparatorMean not found in comparatorProportion")
   }
-  
+
   # Identify shared columns between the two data frames
-  sharedColumns <- intersect(colnames(targetProportion),
-                             colnames(comparatorProportion))
-  
+  sharedColumns <- intersect(
+    colnames(targetProportion),
+    colnames(comparatorProportion)
+  )
+
   # Combine the two data frames on shared columns
   combinedData <- targetProportion |>
     dplyr::full_join(comparatorProportion, by = sharedColumns)
-  
+
   # Calculate standard deviations and standardized differences
   standardizedDifference <- combinedData |>
     dplyr::mutate(
       targetSd = sqrt(.data$targetMean * (1 - .data$targetMean)),
       comparatorSd = sqrt(.data$comparatorMean * (1 - .data$comparatorMean)),
-      pooledSd = sqrt((.data$targetSd ^ 2 + .data$comparatorSd ^ 2) / 2),
+      pooledSd = sqrt((.data$targetSd^2 + .data$comparatorSd^2) / 2),
       stdDiff = (.data$comparatorMean - .data$targetMean) / .data$pooledSd
     ) |>
     dplyr::select(
@@ -57,6 +59,6 @@ calculateStandardizedDifference <- function(targetProportion, comparatorProporti
       dplyr::all_of(dplyr::starts_with("comparator")),
       "stdDiff"
     )
-  
+
   return(standardizedDifference)
 }
