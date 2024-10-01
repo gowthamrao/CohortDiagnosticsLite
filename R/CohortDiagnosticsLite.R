@@ -21,4 +21,5 @@
 #' @import dplyr
 #' @importFrom utils flush.console
 #' @importFrom rlang .data
+#' @importFrom rlang :=
 NULL

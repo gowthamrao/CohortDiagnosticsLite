@@ -26,7 +26,8 @@ test_that("Invoke cohort generation", {
     cdmDatabaseSchema = cdmDatabaseSchema,
     cohortDatabaseSchema = cohortDatabaseSchema,
     cohortTable = cohortTableNames$cohortTable,
-    tempEmulationSchema = tempEmulationSchema
+    tempEmulationSchema = tempEmulationSchema, 
+    databaseId = "eunomia"
   )
   
   testthat::expect_gte(object = nrow(indexEventBreakdown),
@@ -36,6 +37,7 @@ test_that("Invoke cohort generation", {
     expected = c(
       'cohortDefinitionId',
       'conceptId',
+      'databaseId',
       'domain',
       'persons',
       'records',

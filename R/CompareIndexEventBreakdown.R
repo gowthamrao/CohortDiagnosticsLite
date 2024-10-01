@@ -120,8 +120,8 @@ compareIndexEventBreakdown <- function(indexEventBreakdown,
     }
     
     output <- indexEventBreakdown |>
-      dplyr::filter(cohortDefinitionId == cohortId,
-                    databaseId %in% c(databaseId)) |>
+      dplyr::filter(.data$cohortDefinitionId == cohortId,
+                    .data$databaseId %in% c(databaseId)) |>
       dplyr::inner_join(
         cohortCount |>
           dplyr::select(
@@ -133,10 +133,10 @@ compareIndexEventBreakdown <- function(indexEventBreakdown,
       ) |> # Use `:=` to dynamically assign column names
       dplyr::rename(
         !!paste0(prefix, "Count") := !!rlang::sym(countCol),
-        !!paste0(prefix, "CohortId") := cohortDefinitionId,
-        !!paste0(prefix, "DatabaseId") := databaseId
+        !!paste0(prefix, "CohortId") := .data$cohortDefinitionId,
+        !!paste0(prefix, "DatabaseId") := .data$databaseId
       ) |>
-      dplyr::mutate(!!paste0(prefix, "Mean") := !!rlang::sym(paste0(prefix, "Count")) / cohortValue) |>
+      dplyr::mutate(!!paste0(prefix, "Mean") := !!rlang::sym(paste0(prefix, "Count")) / .data$cohortValue) |>
       dplyr::select("conceptId",
                     "sourceConcept",
                     "domain",

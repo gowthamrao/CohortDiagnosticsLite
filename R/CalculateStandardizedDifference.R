@@ -46,16 +46,16 @@ calculateStandardizedDifference <- function(targetProportion, comparatorProporti
   # Calculate standard deviations and standardized differences
   standardizedDifference <- combinedData |>
     dplyr::mutate(
-      targetSd = sqrt(targetMean * (1 - targetMean)),
-      comparatorSd = sqrt(comparatorMean * (1 - comparatorMean)),
-      pooledSd = sqrt((targetSd ^ 2 + comparatorSd ^ 2) / 2),
-      stdDiff = (comparatorMean - targetMean) / pooledSd
+      targetSd = sqrt(.data$targetMean * (1 - .data$targetMean)),
+      comparatorSd = sqrt(.data$comparatorMean * (1 - .data$comparatorMean)),
+      pooledSd = sqrt((.data$targetSd ^ 2 + .data$comparatorSd ^ 2) / 2),
+      stdDiff = (.data$comparatorMean - .data$targetMean) / .data$pooledSd
     ) |>
     dplyr::select(
       dplyr::all_of(sharedColumns),
       dplyr::all_of(dplyr::starts_with("target")),
       dplyr::all_of(dplyr::starts_with("comparator")),
-      stdDiff
+      "stdDiff"
     )
   
   return(standardizedDifference)
