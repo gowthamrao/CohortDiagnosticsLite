@@ -55,7 +55,7 @@ getPredictedCount <- function(data,
   offsetTerm <- paste0("offset(log(", personTimeField, "))")
   
   model <- Cyclops::createCyclopsData(formula =
-                                        as.formula(
+                                        stats::as.formula(
                                           paste(
                                             "observed ~ splines::ns(x = timeId, df =",
                                             numberOfSplines,
@@ -76,9 +76,9 @@ getPredictedCount <- function(data,
   data <- data |>
     likelihoodComparison(maxRatio = maxRatio, alpha = alpha) |>
     dplyr::rename(
-      cyclopsRatio = ratio,
-      cyclopsPValue = p,
-      cyclopsStable = stable
+      cyclopsRatio = .data$ratio,
+      cyclopsPValue = .data$p,
+      cyclopsStable = .data$stable
     )
   
   # We cannot get confidence interval because Cyclops does not provide std errors.
@@ -99,10 +99,10 @@ getPredictedCount <- function(data,
     data$glmPearsonChiSquare <- as.double(NA)
     data$glmPPValuePearson <- as.double(NA)
     
-    modelGlm <- glm(
+    modelGlm <- stats::glm(
       observed ~ splines::ns(timeId, df = numberOfSplines) + offset(log(data[[personTimeField]])),
       data = data,
-      family = poisson
+      family = "poisson"
     )
     glmPredictions <- stats::predict(modelGlm,
                                      newdata = data,
@@ -111,7 +111,7 @@ getPredictedCount <- function(data,
     glmPredictedLog <- glmPredictions$fit
     seLog <- glmPredictions$se.fit
     
-    zValue <- qnorm(1 - alpha / 2)
+    zValue <- stats::qnorm(1 - alpha / 2)
     
     glmLowerBoundLog <- glmPredictedLog - zValue * seLog
     glmUpperBoundLog <- glmPredictedLog + zValue * seLog
@@ -123,13 +123,13 @@ getPredictedCount <- function(data,
     
     #using Martijn's likelikhood custom function to calculate p-value
     glmLikelihood <- data |>
-      dplyr::select(glmExpected, observed) |>
-      dplyr::rename(cyclopsExpected = glmExpected) |>
+      dplyr::select("glmExpected", "observed") |>
+      dplyr::rename(cyclopsExpected = .data$glmExpected) |>
       likelihoodComparison(maxRatio = maxRatio, alpha = alpha) |>
-      dplyr::rename(glmRatio = ratio,
-                    glmPValue = p,
-                    glmStable = stable) |>
-      dplyr::select(glmRatio, glmPValue, glmStable) |>
+      dplyr::rename(glmRatio = .data$ratio,
+                    glmPValue = .data$p,
+                    glmStable = .data$stable) |>
+      dplyr::select("glmRatio", "glmPValue", "glmStable") |>
       dplyr::distinct()
     
     data <- data |>
@@ -147,14 +147,14 @@ getPredictedCount <- function(data,
     # Get the degrees of freedom (difference between the number of observations and the number of parameters)
     data$glmDegreesOfFreedom <- modelGlm$df.residual
     # Compute the p-value from the chi-square distribution
-    data$glmPValueDeviance <- 1 - pchisq(modelGlm$deviance, modelGlm$df.residual)
+    data$glmPValueDeviance <- 1 - stats::pchisq(modelGlm$deviance, modelGlm$df.residual)
     
     # Pearson Chi-Squared Test - This test sums the squared differences between the observed and expected counts, scaled by the expected counts.
     # Compute Pearson's chi-squared test statistic
     data$glmPearsonChiSquare <- sum((data$observed - data$glmExpected) ^
                                       2 / data$glmExpected)
     # Compute p-value for the Pearson chi-squared test
-    data$glmPPValuePearson <- 1 - pchisq(data$glmPearsonChiSquare, modelGlm$df.residual)
+    data$glmPPValuePearson <- 1 - stats::pchisq(data$glmPearsonChiSquare, modelGlm$df.residual)
     
     data$glmPearsonStable <- min(data$glmPPValuePearson) > alpha
     data$glmDevianceStable <- min(data$glmPValueDeviance) > alpha
@@ -180,8 +180,8 @@ getPredictedCount <- function(data,
   
   # Arrange the data based on timeId and select the 'observed' and 'expected' columns
   data <- data |>
-    dplyr::arrange(timeId) |>
-    dplyr::select(-timeId) |>
+    dplyr::arrange(.data$timeId) |>
+    dplyr::select(-"timeId") |>
     dplyr::tibble()
   
   return(data)
