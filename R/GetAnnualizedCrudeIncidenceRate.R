@@ -26,7 +26,7 @@
 #' Temporary tables are used during processing and are dropped after completion.
 #'
 #' @export
-getCrudeIncidenceRate <-
+getAnnualizedCrudeIncidenceRate <-
   function(connectionDetails = NULL,
            connection = NULL,
            cohortDatabaseSchema,

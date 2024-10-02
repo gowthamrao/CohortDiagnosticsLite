@@ -6,7 +6,6 @@
 #' @param maxRatio The maximum ratio for the likelihood comparison. If NULL, the default is 1.25.
 #' @param alpha The significance level for the likelihood ratio test. If NULL, the default is 0.05.
 #' @return A data frame with the ratio, p-value, and stability indicator.
-#' @export
 likelihoodComparison <- function(data,
                                  maxRatio = 1.25,
                                  alpha = 0.05) {

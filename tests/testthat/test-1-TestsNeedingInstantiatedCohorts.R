@@ -48,7 +48,7 @@ test_that("Invoke cohort generation", {
   )
 
   ### incidence rate
-  crudeIncidenceRateData <- CohortDiagnosticsLite::getCrudeIncidenceRate(
+  crudeIncidenceRateData <- CohortDiagnosticsLite::getAnnualizedCrudeIncidenceRate(
     cohortDefinitionId = cohortIds[[1]],
     connectionDetails = connectionDetails,
     cdmDatabaseSchema = cdmDatabaseSchema,

@@ -20,7 +20,6 @@
 #' @param maxRatio The maximum ratio for the likelihood comparison. If NULL, the default is 1.25.
 #' @param alpha The significance level for statistical tests and confidence intervals (default is 0.05).
 #' @return A data frame with the observed and predicted counts from both `Cyclops` and `glm()`, along with diagnostics such as p-values, confidence intervals (for GLM), and stability indicators.
-#' @export
 getPredictedEventCounts <- function(data,
                                     timeSequenceField,
                                     countField,
