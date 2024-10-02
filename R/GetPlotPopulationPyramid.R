@@ -30,11 +30,6 @@
 #' @importFrom ggplot2 ggplot geom_bar aes coord_flip scale_y_continuous labs scale_fill_manual theme_minimal
 #' @export
 getPlotPopulationPyramid <- function(data) {
-  # Ensure ggplot2 is installed
-  if (!requireNamespace("ggplot2", quietly = TRUE)) {
-    stop("Please install the ggplot2 package to use this function.")
-  }
-
   # Extract the start of the age range for sorting
   data$ageStart <- as.numeric(sub("-.*", "", data$ageGroup))
 

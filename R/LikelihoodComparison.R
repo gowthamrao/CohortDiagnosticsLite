@@ -44,14 +44,14 @@ likelihoodComparison <- function(data,
   x <- seq(1, 10, by = 0.1)
   ll <- sapply(x, logLikelihood)
 
+  # Handle the case when indices is empty by setting to NA
+  maxX <- NA
+  minX <- NA
+
   indices <- which(!is.na(ll) & !is.infinite(ll))
   if (length(indices) > 0) {
     maxX <- x[max(indices)]
     minX <- x[min(indices)]
-  } else {
-    # Handle the case when indices is empty by setting to NA
-    maxX <- NA
-    minX <- NA
   }
 
   xHat <- stats::optim(

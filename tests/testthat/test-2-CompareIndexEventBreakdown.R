@@ -77,3 +77,74 @@ test_that("Error handling duplicated", {
     )
   )
 })
+
+test_that("Missing columns index event breakdown", {
+  expect_error(
+    compareIndexEventBreakdown(
+      indexEventBreakdown = indexEventBreakdown |> dplyr::select(-databaseId),
+      cohortCount = cohortCount,
+      targetCohortId = 18478,
+      comparatorCohortId = 18490002,
+      targetDatabaseId = "db1",
+      comparatorDatabaseId = "db1",
+      compareEntries = TRUE
+    )
+  )
+})
+
+test_that("Missing cohorts index event breakdown - target", {
+  expect_error(
+    compareIndexEventBreakdown(
+      indexEventBreakdown = indexEventBreakdown,
+      cohortCount = cohortCount,
+      targetCohortId = 3423,
+      comparatorCohortId = 18490002,
+      targetDatabaseId = "db1",
+      comparatorDatabaseId = "db1",
+      compareEntries = TRUE
+    )
+  )
+})
+
+test_that("Missing cohorts index event breakdown - target", {
+  expect_error(
+    compareIndexEventBreakdown(
+      indexEventBreakdown = indexEventBreakdown,
+      cohortCount = cohortCount,
+      targetCohortId = 18478,
+      comparatorCohortId = 3423,
+      targetDatabaseId = "db1",
+      comparatorDatabaseId = "db1",
+      compareEntries = TRUE
+    )
+  )
+})
+
+test_that("Missing databaseId index event breakdown - target", {
+  expect_error(
+    compareIndexEventBreakdown(
+      indexEventBreakdown = indexEventBreakdown,
+      cohortCount = cohortCount,
+      targetCohortId = 18478,
+      comparatorCohortId = 18490002,
+      targetDatabaseId = "dbx",
+      comparatorDatabaseId = "db1",
+      compareEntries = TRUE
+    )
+  )
+})
+
+
+test_that("Missing databaseId index event breakdown - target", {
+  expect_error(
+    compareIndexEventBreakdown(
+      indexEventBreakdown = indexEventBreakdown,
+      cohortCount = cohortCount,
+      targetCohortId = 18478,
+      comparatorCohortId = 18490002,
+      targetDatabaseId = "db1",
+      comparatorDatabaseId = "dbx",
+      compareEntries = TRUE
+    )
+  )
+})

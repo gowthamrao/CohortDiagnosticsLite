@@ -21,6 +21,11 @@ getPredictedCount <- function(data,
                               splineTickInterval = 3,
                               alpha = 0.05,
                               maxRatio = 1.25) {
+  if (nrow(data) == 0) {
+    warning("No prediction. Input has 0 rows.")
+    return(NULL)
+  }
+
   # Check if there are duplicate records for the same timeSequenceField
   if (length(data[[timeSequenceField]]) != length(data[[timeSequenceField]] |> unique())) {
     stop("Cant have more than one record per ", timeSequenceField)
@@ -35,11 +40,6 @@ getPredictedCount <- function(data,
   }
 
   if (all(data[[countField]] == 0)) {
-    warning("No prediction. Input has 0 rows.")
-    return(NULL)
-  }
-
-  if (nrow(data) == 0) {
     warning("No prediction. Input has 0 rows.")
     return(NULL)
   }
