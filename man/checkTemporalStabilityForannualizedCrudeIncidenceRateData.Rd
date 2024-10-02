@@ -27,7 +27,7 @@ checkTemporalStabilityForannualizedCrudeIncidenceRateData(
 
 \item{alpha}{The significance level for the likelihood ratio test. If NULL, the default is 0.05.}
 
-\item{removeOutlierZeroCounts}{(Default TRUE) Do you want to remove continous zero counts in the beginning and end in the time series?}
+\item{removeOutlierZeroCounts}{(Default TRUE) Do you want to remove continuous zero counts in the beginning and end in the time series?}
 }
 \value{
 A data frame with the cohortId, databaseId, gender, ageGroup, stable flag, and isUnstable flag.

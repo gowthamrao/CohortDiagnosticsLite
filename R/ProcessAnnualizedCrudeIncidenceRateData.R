@@ -6,7 +6,7 @@
 #' @param cohort A data frame that contains the columns cohortId and cohortName.
 #' @param maxNumberOfSplines The maximum number of splines to use in the model. If NULL, the default is 5.
 #' @param splineTickInterval The interval at which to place the splines. The default is 3.
-#' @param removeOutlierZeroCounts (Default TRUE) Do you want to remove continous zero counts in the beginning and end in the time series?
+#' @param removeOutlierZeroCounts (Default TRUE) Do you want to remove continuous zero counts in the beginning and end in the time series?
 #' @param maxRatio The maximum ratio for the likelihood comparison. If NULL, the default is 1.25.
 #' @param alpha The significance level for the likelihood ratio test. If NULL, the default is 0.05.
 #' @return A data frame with the cohortId, databaseId, gender, ageGroup, stable flag, and isUnstable flag.
