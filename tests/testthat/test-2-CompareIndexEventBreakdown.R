@@ -148,3 +148,17 @@ test_that("Missing databaseId index event breakdown - target", {
     )
   )
 })
+
+test_that("Missing columns in cohort count", {
+  expect_error(
+    compareIndexEventBreakdown(
+      indexEventBreakdown = indexEventBreakdown,
+      cohortCount = cohortCount |> dplyr::select(-cohortSubjects),
+      targetCohortId = 18478,
+      comparatorCohortId = 18490002,
+      targetDatabaseId = "db1",
+      comparatorDatabaseId = "db1",
+      compareEntries = FALSE
+    )
+  )
+})
