@@ -139,8 +139,8 @@ compareIndexEventBreakdown <- function(indexEventBreakdown,
       ) |> # Use `:=` to dynamically assign column names
       dplyr::rename(
         !!paste0(prefix, "Count") := !!rlang::sym(countCol),
-        !!paste0(prefix, "CohortId") := .data$cohortDefinitionId,
-        !!paste0(prefix, "DatabaseId") := .data$databaseId
+        !!paste0(prefix, "CohortId") := "cohortDefinitionId",
+        !!paste0(prefix, "DatabaseId") := "databaseId"
       ) |>
       dplyr::mutate(!!paste0(prefix, "Mean") := !!rlang::sym(paste0(prefix, "Count")) / .data$cohortValue) |>
       dplyr::select(
@@ -192,18 +192,18 @@ compareIndexEventBreakdown <- function(indexEventBreakdown,
       compareEntries,
     prefix = "comparator"
   )
-  
+
   # Calculate standardized differences
   stdDiff <- calculateStandardizedDifference(
     targetProportion = targetData,
     comparatorProportion = comparatorData
   ) |>
     dplyr::arrange(dplyr::desc(stdDiff))
-  
-  #calculate CoSineSimilarity
+
+  # calculate CoSineSimilarity
   stdDiff$cosineSimilarity <- calculateCosineSimilarity(targetMean = stdDiff$targetMean, comparatorMean = stdDiff$comparatorMean)
-  
-  #calculate Euclidean Distance
+
+  # calculate Euclidean Distance
   stdDiff$euclideanDistance <- calculateEuclideanDistance(targetMean = stdDiff$targetMean, comparatorMean = stdDiff$comparatorMean)
 
   return(stdDiff)

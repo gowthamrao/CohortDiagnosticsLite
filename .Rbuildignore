@@ -12,3 +12,5 @@ readme.md
 ^compare_versions
 ^deploy.sh
 ^docs
+^.sqlite
+^errorReportSql.txt

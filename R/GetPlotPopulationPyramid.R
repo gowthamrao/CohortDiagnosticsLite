@@ -34,16 +34,16 @@ getPlotPopulationPyramid <- function(data) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("Please install the ggplot2 package to use this function.")
   }
-  
+
   # Extract the start of the age range for sorting
   data$ageStart <- as.numeric(sub("-.*", "", data$ageGroup))
-  
+
   # Order the data by the numeric start of the age group
   data <- data[order(data$ageStart), ]
-  
+
   # Adjust proportions for plotting (make male proportions negative)
-  data$proportion <- ifelse(data$gender == 'Male', -data$proportion, data$proportion)
-  
+  data$proportion <- ifelse(data$gender == "Male", -data$proportion, data$proportion)
+
   # Create the plot
   p <- ggplot2::ggplot(
     data = data,
@@ -54,12 +54,12 @@ getPlotPopulationPyramid <- function(data) {
     )
   ) +
     ggplot2::geom_bar(stat = "identity") +
-    ggplot2::coord_flip() +  # Flip coordinates for pyramid style
-    ggplot2::scale_y_continuous(labels = abs) +  # Show positive y-axis labels
+    ggplot2::coord_flip() + # Flip coordinates for pyramid style
+    ggplot2::scale_y_continuous(labels = abs) + # Show positive y-axis labels
     ggplot2::labs(title = "Population Pyramid", x = "Age Group", y = "Proportion of Population") +
     ggplot2::scale_fill_manual(values = c("Male" = "blue", "Female" = "pink")) +
     ggplot2::theme_minimal()
-  
+
   # Display the plot
   return(p)
 }

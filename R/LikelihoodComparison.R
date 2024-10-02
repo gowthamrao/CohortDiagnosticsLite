@@ -12,7 +12,7 @@ likelihoodComparison <- function(data,
                                  alpha = 0.05) {
   observed <- data$observed
   expected <- data$cyclopsExpected
-  
+
   # From https://cdsmithus.medium.com/the-logarithm-of-a-sum-69dd76199790
   smoothMax <- function(x, y) {
     smoothMax <- ifelse(
@@ -22,28 +22,28 @@ likelihoodComparison <- function(data,
     )
     return(smoothMax)
   }
-  
+
   logLikelihood <- function(x) {
     xTerm <- stats::dpois(observed, expected * x, log = TRUE)
     yTerm <- stats::dpois(observed, expected / x, log = TRUE)
     return(-sum(smoothMax(x = xTerm, y = yTerm)))
   }
-  
+
   likelihood <- function(x) {
     return(exp(-logLikelihood(x)))
   }
-  
+
   vectorLikelihood <- function(x) {
     # Handle cases where likelihood might become extremely small or infinite
     likelihood_values <- sapply(x, likelihood)
     likelihood_values[is.infinite(likelihood_values) |
-                        likelihood_values < .Machine$double.eps] <- .Machine$double.eps
+      likelihood_values < .Machine$double.eps] <- .Machine$double.eps
     return(likelihood_values)
   }
-  
+
   x <- seq(1, 10, by = 0.1)
   ll <- sapply(x, logLikelihood)
-  
+
   indices <- which(!is.na(ll) & !is.infinite(ll))
   if (length(indices) > 0) {
     maxX <- x[max(indices)]
@@ -53,7 +53,7 @@ likelihoodComparison <- function(data,
     maxX <- NA
     minX <- NA
   }
-  
+
   xHat <- stats::optim(
     1.5,
     logLikelihood,
@@ -61,18 +61,26 @@ likelihoodComparison <- function(data,
     upper = maxX,
     method = "L-BFGS-B"
   )$par
-  
+
   # Handle potential divergent integrals by introducing lower and upper bounds on the integrand
-  l0 <- tryCatch({
-    stats::integrate(vectorLikelihood, lower = 1, upper = maxRatio)$value
-  }, error = function(e)
-    NA)  # Return NA if the integral fails
-  
-  l1 <- tryCatch({
-    stats::integrate(vectorLikelihood, lower = maxRatio, upper = Inf)$value
-  }, error = function(e)
-    NA)  # Return NA if the integral fails
-  
+  l0 <- tryCatch(
+    {
+      stats::integrate(vectorLikelihood, lower = 1, upper = maxRatio)$value
+    },
+    error = function(...) {
+      NA
+    }
+  ) # Return NA if the integral fails
+
+  l1 <- tryCatch(
+    {
+      stats::integrate(vectorLikelihood, lower = maxRatio, upper = Inf)$value
+    },
+    error = function(...) {
+      NA
+    }
+  ) # Return NA if the integral fails
+
   if (is.na(l0) || is.na(l1)) {
     llr <- NA
     p <- NA
@@ -84,13 +92,13 @@ likelihoodComparison <- function(data,
       stats::pchisq(llr, 1, lower.tail = FALSE)
     )
   }
-  
+
   result <- data |>
     tidyr::crossing(dplyr::tibble(
       ratio = xHat,
       p = p,
       stable = p > alpha
     ))
-  
+
   return(result)
 }

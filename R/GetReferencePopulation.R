@@ -3,11 +3,11 @@
 #' This function returns the age group and gender stratified demographic distribution
 #' for various geographic regions. It provides the proportion of the population
 #' in each age group, broken down by gender, for the selected region. The current
-#' implementation includes data for the US, UK, Canada, Europe, Japan, China, and 
+#' implementation includes data for the US, UK, Canada, Europe, Japan, China, and
 #' a worldwide population.
 #'
-#' @param region A character string specifying the geographic region for which the 
-#' reference population should be returned. Valid options include "US", "UK", 
+#' @param region A character string specifying the geographic region for which the
+#' reference population should be returned. Valid options include "US", "UK",
 #' "Canada", "Europe", "Japan", "China", and "Worldwide". The default is "US".
 #'
 #' @return A tibble with three columns:
@@ -25,22 +25,22 @@
 #'
 #' @export
 getReferencePopulation <- function(region = "US") {
-  if (region == 'US') {
+  if (region == "US") {
     referencePopulation <- data.frame(
       ageGroup = c(
-        '0-9',
-        '10-19',
-        '20-29',
-        '30-39',
-        '40-49',
-        '50-59',
-        '60-69',
-        '70-79',
-        '80-89',
-        '90-99',
-        '100-109'
+        "0-9",
+        "10-19",
+        "20-29",
+        "30-39",
+        "40-49",
+        "50-59",
+        "60-69",
+        "70-79",
+        "80-89",
+        "90-99",
+        "100-109"
       ),
-      gender = rep(c('Female', 'Male'), each = 11),
+      gender = rep(c("Female", "Male"), each = 11),
       proportion = c(
         0.030,
         0.032,
@@ -66,23 +66,22 @@ getReferencePopulation <- function(region = "US") {
         0.001
       )
     ) |> dplyr::tibble()
-    
-  } else if (region == 'UK') {
+  } else if (region == "UK") {
     referencePopulation <- data.frame(
       ageGroup = c(
-        '0-9',
-        '10-19',
-        '20-29',
-        '30-39',
-        '40-49',
-        '50-59',
-        '60-69',
-        '70-79',
-        '80-89',
-        '90-99',
-        '100-109'
+        "0-9",
+        "10-19",
+        "20-29",
+        "30-39",
+        "40-49",
+        "50-59",
+        "60-69",
+        "70-79",
+        "80-89",
+        "90-99",
+        "100-109"
       ),
-      gender = rep(c('Female', 'Male'), each = 11),
+      gender = rep(c("Female", "Male"), each = 11),
       proportion = c(
         0.028,
         0.030,
@@ -108,23 +107,22 @@ getReferencePopulation <- function(region = "US") {
         0.001
       )
     ) |> dplyr::tibble()
-    
-  } else if (region == 'Canada') {
+  } else if (region == "Canada") {
     referencePopulation <- data.frame(
       ageGroup = c(
-        '0-9',
-        '10-19',
-        '20-29',
-        '30-39',
-        '40-49',
-        '50-59',
-        '60-69',
-        '70-79',
-        '80-89',
-        '90-99',
-        '100-109'
+        "0-9",
+        "10-19",
+        "20-29",
+        "30-39",
+        "40-49",
+        "50-59",
+        "60-69",
+        "70-79",
+        "80-89",
+        "90-99",
+        "100-109"
       ),
-      gender = rep(c('Female', 'Male'), each = 11),
+      gender = rep(c("Female", "Male"), each = 11),
       proportion = c(
         0.029,
         0.031,
@@ -150,23 +148,22 @@ getReferencePopulation <- function(region = "US") {
         0.001
       )
     ) |> dplyr::tibble()
-    
-  } else if (region == 'Europe') {
+  } else if (region == "Europe") {
     referencePopulation <- data.frame(
       ageGroup = c(
-        '0-9',
-        '10-19',
-        '20-29',
-        '30-39',
-        '40-49',
-        '50-59',
-        '60-69',
-        '70-79',
-        '80-89',
-        '90-99',
-        '100-109'
+        "0-9",
+        "10-19",
+        "20-29",
+        "30-39",
+        "40-49",
+        "50-59",
+        "60-69",
+        "70-79",
+        "80-89",
+        "90-99",
+        "100-109"
       ),
-      gender = rep(c('Female', 'Male'), each = 11),
+      gender = rep(c("Female", "Male"), each = 11),
       proportion = c(
         0.025,
         0.027,
@@ -192,23 +189,22 @@ getReferencePopulation <- function(region = "US") {
         0.002
       )
     ) |> dplyr::tibble()
-    
-  } else if (region == 'Japan') {
+  } else if (region == "Japan") {
     referencePopulation <- data.frame(
       ageGroup = c(
-        '0-9',
-        '10-19',
-        '20-29',
-        '30-39',
-        '40-49',
-        '50-59',
-        '60-69',
-        '70-79',
-        '80-89',
-        '90-99',
-        '100-109'
+        "0-9",
+        "10-19",
+        "20-29",
+        "30-39",
+        "40-49",
+        "50-59",
+        "60-69",
+        "70-79",
+        "80-89",
+        "90-99",
+        "100-109"
       ),
-      gender = rep(c('Female', 'Male'), each = 11),
+      gender = rep(c("Female", "Male"), each = 11),
       proportion = c(
         0.019,
         0.022,
@@ -234,23 +230,22 @@ getReferencePopulation <- function(region = "US") {
         0.001
       )
     ) |> dplyr::tibble()
-    
-  } else if (region == 'China') {
+  } else if (region == "China") {
     referencePopulation <- data.frame(
       ageGroup = c(
-        '0-9',
-        '10-19',
-        '20-29',
-        '30-39',
-        '40-49',
-        '50-59',
-        '60-69',
-        '70-79',
-        '80-89',
-        '90-99',
-        '100-109'
+        "0-9",
+        "10-19",
+        "20-29",
+        "30-39",
+        "40-49",
+        "50-59",
+        "60-69",
+        "70-79",
+        "80-89",
+        "90-99",
+        "100-109"
       ),
-      gender = rep(c('Female', 'Male'), each = 11),
+      gender = rep(c("Female", "Male"), each = 11),
       proportion = c(
         0.025,
         0.027,
@@ -276,23 +271,22 @@ getReferencePopulation <- function(region = "US") {
         0.001
       )
     ) |> dplyr::tibble()
-    
-  } else if (region == 'Worldwide') {
+  } else if (region == "Worldwide") {
     referencePopulation <- data.frame(
       ageGroup = c(
-        '0-9',
-        '10-19',
-        '20-29',
-        '30-39',
-        '40-49',
-        '50-59',
-        '60-69',
-        '70-79',
-        '80-89',
-        '90-99',
-        '100-109'
+        "0-9",
+        "10-19",
+        "20-29",
+        "30-39",
+        "40-49",
+        "50-59",
+        "60-69",
+        "70-79",
+        "80-89",
+        "90-99",
+        "100-109"
       ),
-      gender = rep(c('Female', 'Male'), each = 11),
+      gender = rep(c("Female", "Male"), each = 11),
       proportion = c(
         0.180,
         0.170,
@@ -321,6 +315,6 @@ getReferencePopulation <- function(region = "US") {
   } else {
     stop("Region not supported.")
   }
-  
+
   return(referencePopulation)
 }
