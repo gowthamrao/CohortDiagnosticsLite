@@ -34,7 +34,11 @@ likelihoodComparison <- function(data,
   }
   
   vectorLikelihood <- function(x) {
-    return(sapply(x, likelihood))
+    # Handle cases where likelihood might become extremely small or infinite
+    likelihood_values <- sapply(x, likelihood)
+    likelihood_values[is.infinite(likelihood_values) |
+                        likelihood_values < .Machine$double.eps] <- .Machine$double.eps
+    return(likelihood_values)
   }
   
   x <- seq(1, 10, by = 0.1)
@@ -58,24 +62,35 @@ likelihoodComparison <- function(data,
     method = "L-BFGS-B"
   )$par
   
-  l0 <- stats::integrate(vectorLikelihood, lower = 1, upper = maxRatio)$value
-  l1 <- stats::integrate(vectorLikelihood, lower = maxRatio, upper = Inf)$value
+  # Handle potential divergent integrals by introducing lower and upper bounds on the integrand
+  l0 <- tryCatch({
+    stats::integrate(vectorLikelihood, lower = 1, upper = maxRatio)$value
+  }, error = function(e)
+    NA)  # Return NA if the integral fails
   
-  llr <- 2 * (log(l1) - log(l0))
-  if (is.nan(llr)) {
-    if (xHat > maxRatio) {
-      p <- 0
-    } else {
-      p <- 1
-    }
+  l1 <- tryCatch({
+    stats::integrate(vectorLikelihood, lower = maxRatio, upper = Inf)$value
+  }, error = function(e)
+    NA)  # Return NA if the integral fails
+  
+  if (is.na(l0) || is.na(l1)) {
+    llr <- NA
+    p <- NA
   } else {
-    p <- stats::pchisq(llr, 1, lower.tail = FALSE)
+    llr <- 2 * (log(l1) - log(l0))
+    p <- ifelse(
+      is.nan(llr),
+      ifelse(xHat > maxRatio, 0, 1),
+      stats::pchisq(llr, 1, lower.tail = FALSE)
+    )
   }
+  
   result <- data |>
     tidyr::crossing(dplyr::tibble(
       ratio = xHat,
       p = p,
       stable = p > alpha
     ))
+  
   return(result)
 }

@@ -192,13 +192,19 @@ compareIndexEventBreakdown <- function(indexEventBreakdown,
       compareEntries,
     prefix = "comparator"
   )
-
+  
   # Calculate standardized differences
   stdDiff <- calculateStandardizedDifference(
     targetProportion = targetData,
     comparatorProportion = comparatorData
   ) |>
     dplyr::arrange(dplyr::desc(stdDiff))
+  
+  #calculate CoSineSimilarity
+  stdDiff$cosineSimilarity <- calculateCosineSimilarity(targetMean = stdDiff$targetMean, comparatorMean = stdDiff$comparatorMean)
+  
+  #calculate Euclidean Distance
+  stdDiff$euclideanDistance <- calculateEuclideanDistance(targetMean = stdDiff$targetMean, comparatorMean = stdDiff$comparatorMean)
 
   return(stdDiff)
 }
