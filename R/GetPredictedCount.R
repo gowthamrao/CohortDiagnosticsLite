@@ -27,6 +27,24 @@ getPredictedCount <- function(data,
     stop("Cant have more than one record per ", timeSequenceField)
   }
   
+  # Handle missing values
+  if (any(is.na(data[[countField]]))) {
+    stop(paste0("countField = ",countField, " has NA values." ))
+  }
+  if (any(is.na(data[[personTimeField]]))) {
+    stop(paste0("personTimeField = ",personTimeField, " has NA values." ))
+  }
+  
+  if (all(data[[countField]] == 0)) {
+    warning("No prediction. All counts are 0.")
+    return(NULL)
+  }
+  
+  if (nrow(data) == 0) {
+    warning("No prediction. Input has 0 rows.")
+    return(NULL)
+  }
+  
   # Create a new column 'observed' based on the countField
   data$observed <- data[[countField]]
   
