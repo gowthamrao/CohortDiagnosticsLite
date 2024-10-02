@@ -1,4 +1,4 @@
-test_that("getPredictedCount works as expected", {
+test_that("getPredictedEventCounts works as expected", {
   library(testthat)
   # Sample test data
   test_data <- data.frame(
@@ -8,7 +8,7 @@ test_that("getPredictedCount works as expected", {
   )
 
   # Test case 1: Basic functionality
-  result <- getPredictedCount(
+  result <- getPredictedEventCounts(
     test_data,
     timeSequenceField = "timeSequenceField",
     countField = "countField",
@@ -29,7 +29,7 @@ test_that("getPredictedCount works as expected", {
   expect_true(all(expected_columns %in% colnames(result)))
 
   # Test case 3: Test with different maxNumberOfSplines
-  result_splines <- getPredictedCount(
+  result_splines <- getPredictedEventCounts(
     test_data,
     timeSequenceField = "timeSequenceField",
     countField = "countField",
@@ -42,7 +42,7 @@ test_that("getPredictedCount works as expected", {
   test_data_missing <- test_data
   test_data_missing$countField[5] <- NA
   expect_error(
-    getPredictedCount(
+    getPredictedEventCounts(
       test_data_missing,
       timeSequenceField = "timeSequenceField",
       countField = "countField",
@@ -54,7 +54,7 @@ test_that("getPredictedCount works as expected", {
   test_data_dup <- test_data
   test_data_dup$timeSequenceField[2] <- 1
   expect_error(
-    getPredictedCount(
+    getPredictedEventCounts(
       test_data_dup,
       timeSequenceField = "timeSequenceField",
       countField = "countField",
@@ -70,7 +70,7 @@ test_that("getPredictedCount works as expected", {
     personTimeField = rep(1000, 10)
   )
   expect_warning(
-    getPredictedCount(
+    getPredictedEventCounts(
       test_data_zero,
       timeSequenceField = "timeSequenceField",
       countField = "countField",
@@ -79,7 +79,7 @@ test_that("getPredictedCount works as expected", {
   )
 
   # Test case 7: Check for predicted counts using GLM model
-  result_glm <- getPredictedCount(
+  result_glm <- getPredictedEventCounts(
     test_data,
     timeSequenceField = "timeSequenceField",
     countField = "countField",
@@ -98,7 +98,7 @@ test_that("getPredictedCount works as expected", {
     personTimeField = numeric(0)
   )
   expect_warning(
-    getPredictedCount(
+    getPredictedEventCounts(
       test_data_empty,
       timeSequenceField = "timeSequenceField",
       countField = "countField",
@@ -107,7 +107,7 @@ test_that("getPredictedCount works as expected", {
   )
 
   # Test case 9: Test different maxRatio and alpha values
-  result_custom <- getPredictedCount(
+  result_custom <- getPredictedEventCounts(
     test_data,
     timeSequenceField = "timeSequenceField",
     countField = "countField",
@@ -136,7 +136,7 @@ test_that("getPredictedCount works as expected", {
   )
   test_data[5, ]$personTimeField <- NA
   expect_error(
-    getPredictedCount(
+    getPredictedEventCounts(
       test_data,
       timeSequenceField = "timeSequenceField",
       countField = "countField",
@@ -147,7 +147,7 @@ test_that("getPredictedCount works as expected", {
   # Test case 11: send 0 row data
   # Sample test data
   expect_warning(
-    getPredictedCount(
+    getPredictedEventCounts(
       test_data[0, ],
       timeSequenceField = "timeSequenceField",
       countField = "countField",
@@ -159,7 +159,7 @@ test_that("getPredictedCount works as expected", {
 
 
 
-# Test cases for getPredictedCount function
+# Test cases for getPredictedEventCounts function
 test_that("Poisson GLM model is correctly fitted", {
   # Define a simple test dataset
   test_data <- tibble(
@@ -171,7 +171,7 @@ test_that("Poisson GLM model is correctly fitted", {
   )
 
   # Run the function
-  result <- getPredictedCount(
+  result <- getPredictedEventCounts(
     data = test_data,
     timeSequenceField = "timeId",
     countField = "observed",
@@ -215,7 +215,7 @@ test_that("Poisson GLM model handles edge cases", {
 
   # Check if the function returns NULL for all zero counts
   expect_warning(
-    getPredictedCount(
+    getPredictedEventCounts(
       data = zero_data,
       timeSequenceField = "timeId",
       countField = "observed",
@@ -225,7 +225,7 @@ test_that("Poisson GLM model handles edge cases", {
   )
 
   expect_null(suppressWarnings(
-    getPredictedCount(
+    getPredictedEventCounts(
       data = zero_data,
       timeSequenceField = "timeId",
       countField = "observed",
@@ -237,7 +237,7 @@ test_that("Poisson GLM model handles edge cases", {
   empty_data <- test_data |> dplyr::slice(0)
 
   expect_warning(
-    getPredictedCount(
+    getPredictedEventCounts(
       data = empty_data,
       timeSequenceField = "timeId",
       countField = "observed",
@@ -247,7 +247,7 @@ test_that("Poisson GLM model handles edge cases", {
   )
 
   expect_null(suppressWarnings(
-    getPredictedCount(
+    getPredictedEventCounts(
       data = empty_data,
       timeSequenceField = "timeId",
       countField = "observed",
@@ -256,7 +256,7 @@ test_that("Poisson GLM model handles edge cases", {
   )) # Result should be NULL when input data is empty
 })
 
-test_that("getPredictedCount throws errors for invalid inputs", {
+test_that("getPredictedEventCounts throws errors for invalid inputs", {
   # Sample test data
   test_data <- data.frame(
     timeId = 1:10,
@@ -267,7 +267,7 @@ test_that("getPredictedCount throws errors for invalid inputs", {
   duplicate_data <- bind_rows(test_data, test_data[1, ]) # Duplicate the first row
 
   expect_error(
-    getPredictedCount(
+    getPredictedEventCounts(
       data = duplicate_data,
       timeSequenceField = "timeId",
       countField = "observed",
@@ -280,7 +280,7 @@ test_that("getPredictedCount throws errors for invalid inputs", {
   na_data <- test_data |> dplyr::mutate(observed = c(NA, observed[-1]))
 
   expect_error(
-    getPredictedCount(
+    getPredictedEventCounts(
       data = na_data,
       timeSequenceField = "timeId",
       countField = "observed",
@@ -293,7 +293,7 @@ test_that("getPredictedCount throws errors for invalid inputs", {
   na_person_time_data <- test_data |> mutate(personTime = c(NA, personTime[-1]))
 
   expect_error(
-    getPredictedCount(
+    getPredictedEventCounts(
       data = na_person_time_data,
       timeSequenceField = "timeId",
       countField = "observed",
