@@ -11,7 +11,7 @@ test_that("getCalendarYearCohortFromObservationPeriod works with valid inputs", 
 
   # Run the function
   expect_silent(
-    getCalendarYearCohortFromObservationPeriod(
+    CohortDiagnosticsLite:::getCalendarYearCohortFromObservationPeriod(
       connection = connection,
       cdmDatabaseSchema = cdmDatabaseSchema,
       tempEmulationSchema = tempEmulationSchema,

@@ -36,8 +36,8 @@ getCalendarYearCohortFromObservationPeriod <- function(connection,
       tempEmulationSchema = tempEmulationSchema,
       cohort_table_name = tempCohortTableName,
       cdm_database_schema = cdmDatabaseSchema,
-      anchorDay = anchorDay,
-      anchorMonth = anchorMonth
+      calendar_day = anchorDay,
+      calendar_month = anchorMonth
     )
 
   DatabaseConnector::executeSql(connection,
