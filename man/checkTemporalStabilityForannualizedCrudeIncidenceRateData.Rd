@@ -6,7 +6,7 @@
 \usage{
 checkTemporalStabilityForannualizedCrudeIncidenceRateData(
   annualizedCrudeIncidenceRateData,
-  cohort,
+  cohortDefinitionSet,
   maxNumberOfSplines = NULL,
   splineTickInterval = 3,
   maxRatio = 1.25,
@@ -17,7 +17,7 @@ checkTemporalStabilityForannualizedCrudeIncidenceRateData(
 \arguments{
 \item{annualizedCrudeIncidenceRateData}{A data frame that contains the columns cohortId, databaseId, gender, ageGroup, calendarYear, cohortCount, personYears, and incidenceRate.}
 
-\item{cohort}{A data frame that contains the columns cohortId and cohortName.}
+\item{cohortDefinitionSet}{A data frame that contains the columns cohortId and cohortName.}
 
 \item{maxNumberOfSplines}{The maximum number of splines to use in the model. If NULL, the default is 5.}
 

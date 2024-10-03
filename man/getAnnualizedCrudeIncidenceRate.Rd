@@ -10,10 +10,10 @@ getAnnualizedCrudeIncidenceRate(
   cohortDatabaseSchema,
   cohortDefinitionId,
   cdmDatabaseSchema,
-  firstOccurrenceOnly = TRUE,
   washoutPeriod = 365,
   tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
-  cohortTable
+  cohortTable,
+  databaseId
 )
 }
 \arguments{
@@ -36,8 +36,6 @@ this should include both the database and schema name, for example
 
 \item{cdmDatabaseSchema}{Schema name where your CDM tables reside.}
 
-\item{firstOccurrenceOnly}{Logical, if TRUE, only the first occurrence of the event per subject is considered.}
-
 \item{washoutPeriod}{The washout period (in days) before a subject is eligible for their first event (default is 365 days).}
 
 \item{tempEmulationSchema}{Some database platforms like Oracle and Impala do not truly support
@@ -45,6 +43,8 @@ temp tables. To emulate temp tables, provide a schema with write
 privileges where temp tables can be created.}
 
 \item{cohortTable}{The name of the cohort table.}
+
+\item{databaseId}{A string name for the data source.}
 }
 \value{
 A tibble containing the incidence rates for each calendar year. The tibble consists of:

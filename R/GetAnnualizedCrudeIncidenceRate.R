@@ -8,10 +8,10 @@
 #' @template CdmDatabaseSchema
 #' @template CohortDatabaseSchema
 #' @param cohortDefinitionId The cohort definition ID for which the incidence rate is to be calculated.
-#' @param firstOccurrenceOnly Logical, if TRUE, only the first occurrence of the event per subject is considered.
 #' @param washoutPeriod The washout period (in days) before a subject is eligible for their first event (default is 365 days).
 #' @template TempEmulationSchema
 #' @template CohortTable
+#' @param databaseId A string name for the data source.
 #'
 #' @return A tibble containing the incidence rates for each calendar year. The tibble consists of:
 #' \item{calendarYear}{The calendar year for which the incidence rate is calculated.}
@@ -32,10 +32,10 @@ getAnnualizedCrudeIncidenceRate <-
            cohortDatabaseSchema,
            cohortDefinitionId,
            cdmDatabaseSchema,
-           firstOccurrenceOnly = TRUE,
            washoutPeriod = 365,
            tempEmulationSchema = getOption("sqlRenderTempEmulationSchema"),
-           cohortTable) {
+           cohortTable,
+           databaseId) {
     if (is.null(connection)) {
       connection <- DatabaseConnector::connect(connectionDetails)
       on.exit(
@@ -43,7 +43,7 @@ getAnnualizedCrudeIncidenceRate <-
       )
       on.exit(DatabaseConnector::disconnect(connection), add = TRUE)
     }
-
+    
     sqlCalendar <-
       SqlRender::loadRenderTranslateSql(
         sqlFilename = "GetCalendarYearRange.sql",
@@ -51,14 +51,13 @@ getAnnualizedCrudeIncidenceRate <-
         dbms = connection@dbms,
         cdm_database_schema = cdmDatabaseSchema
       )
-
+    
     yearRange <-
       DatabaseConnector::querySql(connection, sqlCalendar, snakeCaseToCamelCase = TRUE)
-
+    
     calendarYears <-
       dplyr::tibble(calendarYear = as.integer(seq(
-        yearRange$startYear, yearRange$endYear,
-        by = 1
+        yearRange$startYear, yearRange$endYear, by = 1
       )))
     DatabaseConnector::insertTable(
       connection = connection,
@@ -70,7 +69,7 @@ getAnnualizedCrudeIncidenceRate <-
       tempEmulationSchema = tempEmulationSchema,
       camelCaseToSnakeCase = TRUE
     )
-
+    
     sql <-
       SqlRender::loadRenderTranslateSql(
         sqlFilename = "ComputeIncidenceRates.sql",
@@ -81,13 +80,12 @@ getAnnualizedCrudeIncidenceRate <-
         cohort_table = cohortTable,
         cdm_database_schema = cdmDatabaseSchema,
         vocabulary_database_schema = cdmDatabaseSchema,
-        first_occurrence_only = firstOccurrenceOnly,
         washout_period = washoutPeriod,
         cohort_id = cohortDefinitionId
       )
-
+    
     DatabaseConnector::executeSql(connection, sql)
-
+    
     sql <- "SELECT * FROM #rates_summary;"
     ratesSummary <-
       DatabaseConnector::renderTranslateQuerySql(
@@ -98,8 +96,9 @@ getAnnualizedCrudeIncidenceRate <-
       ) |>
       tidyr::tibble() |>
       dplyr::mutate(cohortDefinitionId = !!cohortDefinitionId)
-
-    sql <- "TRUNCATE TABLE #rates_summary; DROP TABLE #rates_summary;"
+    
+    sql <- "DROP TABLE IF EXISTS #rates_summary;
+            DROP TABLE IF EXISTS #calendar_years;"
     DatabaseConnector::renderTranslateExecuteSql(
       connection = connection,
       sql = sql,
@@ -107,5 +106,11 @@ getAnnualizedCrudeIncidenceRate <-
       reportOverallTime = FALSE,
       tempEmulationSchema = tempEmulationSchema
     )
-    return(ratesSummary)
+    
+    output <- ratesSummary |>
+      dplyr::mutate(databaseId = !!databaseId) |>
+      dplyr::mutate(incidenceRate = (cohortCount / personYears) * 1000) |> 
+      dplyr::rename(cohortId = cohortDefinitionId)
+    
+    return(output)
   }
