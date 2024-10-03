@@ -43,33 +43,7 @@ getAnnualizedCrudeIncidenceRate <-
       )
       on.exit(DatabaseConnector::disconnect(connection), add = TRUE)
     }
-    
-    sqlCalendar <-
-      SqlRender::loadRenderTranslateSql(
-        sqlFilename = "GetCalendarYearRange.sql",
-        packageName = utils::packageName(),
-        dbms = connection@dbms,
-        cdm_database_schema = cdmDatabaseSchema
-      )
-    
-    yearRange <-
-      DatabaseConnector::querySql(connection, sqlCalendar, snakeCaseToCamelCase = TRUE)
-    
-    calendarYears <-
-      dplyr::tibble(calendarYear = as.integer(seq(
-        yearRange$startYear, yearRange$endYear, by = 1
-      )))
-    DatabaseConnector::insertTable(
-      connection = connection,
-      tableName = "#calendar_years",
-      data = calendarYears,
-      dropTableIfExists = TRUE,
-      createTable = TRUE,
-      tempTable = TRUE,
-      tempEmulationSchema = tempEmulationSchema,
-      camelCaseToSnakeCase = TRUE
-    )
-    
+
     sql <-
       SqlRender::loadRenderTranslateSql(
         sqlFilename = "ComputeIncidenceRates.sql",
@@ -83,9 +57,9 @@ getAnnualizedCrudeIncidenceRate <-
         washout_period = washoutPeriod,
         cohort_id = cohortDefinitionId
       )
-    
-    DatabaseConnector::executeSql(connection, sql)
-    
+
+    DatabaseConnector::executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
+
     sql <- "SELECT * FROM #rates_summary;"
     ratesSummary <-
       DatabaseConnector::renderTranslateQuerySql(
@@ -96,9 +70,8 @@ getAnnualizedCrudeIncidenceRate <-
       ) |>
       tidyr::tibble() |>
       dplyr::mutate(cohortDefinitionId = !!cohortDefinitionId)
-    
-    sql <- "DROP TABLE IF EXISTS #rates_summary;
-            DROP TABLE IF EXISTS #calendar_years;"
+
+    sql <- "DROP TABLE IF EXISTS #rates_summary;"
     DatabaseConnector::renderTranslateExecuteSql(
       connection = connection,
       sql = sql,
@@ -106,11 +79,11 @@ getAnnualizedCrudeIncidenceRate <-
       reportOverallTime = FALSE,
       tempEmulationSchema = tempEmulationSchema
     )
-    
+
     output <- ratesSummary |>
       dplyr::mutate(databaseId = !!databaseId) |>
-      dplyr::mutate(incidenceRate = (cohortCount / personYears) * 1000) |> 
-      dplyr::rename(cohortId = cohortDefinitionId)
-    
+      dplyr::mutate(incidenceRate = (.data$cohortCount / .data$personYears) * 1000) |>
+      dplyr::rename(cohortId = .data$cohortDefinitionId)
+
     return(output)
   }

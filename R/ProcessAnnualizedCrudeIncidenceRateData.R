@@ -19,26 +19,28 @@ checkTemporalStabilityForannualizedCrudeIncidenceRateData <- function(annualized
                                                                       alpha = 0.05,
                                                                       removeOutlierZeroCounts = TRUE) {
   checkCrudeIncidenceRateDataStratifiedIsAnnualized(annualizedCrudeIncidenceRateData)
-  
+
   observedCount <- processannualizedCrudeIncidenceRateData(
     annualizedCrudeIncidenceRateData = annualizedCrudeIncidenceRateData,
     removeOutlierZeroCounts = removeOutlierZeroCounts
   )
-  
+
   combos <- observedCount |>
     dplyr::select("cohortId", "databaseId") |>
     dplyr::distinct()
-  
+
   output <- c()
-  
+
   # Create a progress bar
-  pb <- utils::txtProgressBar(min = 0,
-                              max = nrow(combos),
-                              style = 3)
-  
+  pb <- utils::txtProgressBar(
+    min = 0,
+    max = nrow(combos),
+    style = 3
+  )
+
   for (i in (1:nrow(combos))) {
     combo <- combos[i, ]
-    
+
     data <- observedCount |>
       dplyr::inner_join(combo, by = c("cohortId", "databaseId")) |>
       dplyr::arrange(.data$calendarYear) |>
@@ -48,28 +50,28 @@ checkTemporalStabilityForannualizedCrudeIncidenceRateData <- function(annualized
         lastYearToCensor = as.Date(NA),
         lastYearCensoredPersonYears = as.numeric(NA)
       )
-    
+
     lastYear <- data |>
       dplyr::filter(.data$useYearData == 0) |>
       dplyr::filter(.data$calendarYear > min(data$calendarYear))
-    
+
     if (nrow(lastYear) > 0) {
       data$lastYearToCensor <- lastYear$calendarYear
       data$lastYearCensoredPersonYears <- lastYear$personYears
     }
-    
+
     firstYear <- data |>
       dplyr::filter(.data$useYearData == 0) |>
       dplyr::filter(.data$calendarYear == min(data$calendarYear))
-    
+
     if (nrow(firstYear) > 0) {
       data$firstYearToCensor <- firstYear$calendarYear
       data$firstYearCensoredPersonYears <- firstYear$personYears
     }
-    
+
     data <- data |>
       dplyr::filter(.data$useYearData == 1)
-    
+
     if (nrow(data) > 1) {
       predicted <- getPredictedEventCounts(
         data = data,
@@ -81,7 +83,7 @@ checkTemporalStabilityForannualizedCrudeIncidenceRateData <- function(annualized
         maxRatio = maxRatio,
         alpha = alpha
       )
-      
+
       output[[i]] <- predicted |>
         dplyr::mutate(
           cyclopsExpectedIncidenceRate = round(
@@ -98,7 +100,7 @@ checkTemporalStabilityForannualizedCrudeIncidenceRateData <- function(annualized
           ),
           cyclopsPercentageDeviation = (.data$observed - .data$cyclopsExpected) / .data$cyclopsExpected * 100,
           cylopsExpected = round(x = .data$cyclopsExpected, digits = 4),
-          
+
           ####
           glmExpectedIncidenceRate = round(
             x = (.data$glmExpected / .data$personYears) * 1000,
@@ -124,25 +126,27 @@ checkTemporalStabilityForannualizedCrudeIncidenceRateData <- function(annualized
           glmExpected = round(x = .data$glmExpected, digits = 4)
         )
     }
-    
+
     # Update the progress bar
     utils::setTxtProgressBar(pb, i)
   }
-  
+
   # Close the progress bar
   close(pb)
-  
+
   output <- dplyr::bind_rows(output)
-  
+
   commonFields <- intersect(colnames(observedCount), colnames(output))
-  
+
   output <- observedCount |>
     dplyr::left_join(output, by = commonFields) |>
-    dplyr::inner_join(cohortDefinitionSet |>
-                        dplyr::select("cohortId", "cohortName"),
-                      by = "cohortId") |>
+    dplyr::inner_join(
+      cohortDefinitionSet |>
+        dplyr::select("cohortId", "cohortName"),
+      by = "cohortId"
+    ) |>
     dplyr::relocate("cohortId", "cohortName")
-  
+
   return(output)
 }
 
@@ -160,7 +164,7 @@ summarizeTemporalStabilityForannualizedCrudeIncidenceRateData <- function(tempor
     dplyr::select("cohortId", "databaseId") |>
     dplyr::distinct() |>
     nrow()
-  
+
   # Calculate the counts for failed cohorts, databases, and combinations
   cohortsFailed <- length(cylopsStatisticallyUnstable$cohortId |> unique())
   databasesFailed <- length(cylopsStatisticallyUnstable$databaseId |> unique())
@@ -168,7 +172,7 @@ summarizeTemporalStabilityForannualizedCrudeIncidenceRateData <- function(tempor
     dplyr::select("cohortId", "databaseId") |>
     dplyr::distinct() |>
     nrow()
-  
+
   # Print the summary
   cat(
     "\n",
@@ -187,15 +191,15 @@ summarizeTemporalStabilityForannualizedCrudeIncidenceRateData <- function(tempor
     "\n",
     "Number of cohorts that failed in atleast one datasource:",
     formatCountPercent(count = cohortsFailed, percent = cohortsFailed /
-                         cohortsTested),
+      cohortsTested),
     "\n",
     "Number of databases with atleast one cohort failed:",
     formatCountPercent(count = databasesFailed, percent = databasesFailed /
-                         databasesTested),
+      databasesTested),
     "\n",
     "Number of combos failed:",
     formatCountPercent(count = combosFailed, percent = combosFailed /
-                         combosTested),
+      combosTested),
     "\n",
     "-----",
     "\n"
@@ -215,7 +219,7 @@ checkCrudeIncidenceRateDataStratifiedIsAnnualized <- function(data) {
   if (!is.data.frame(data)) {
     stop("Input data must be a data frame.")
   }
-  
+
   # Check if data has all the expected columns
   expected_columns <- c(
     "cohortCount",
@@ -231,23 +235,23 @@ checkCrudeIncidenceRateDataStratifiedIsAnnualized <- function(data) {
       paste(expected_columns, collapse = ", ")
     ))
   }
-  
+
   # Check data types
   if (!is.numeric(data$cohortCount) |
-      !is.numeric(data$personYears) |
-      !is.numeric(data$incidenceRate) |
-      !is.numeric(data$cohortId) |
-      !is.numeric(as.numeric(data$calendarYear)) |
-      !is.character(data$databaseId)) {
+    !is.numeric(data$personYears) |
+    !is.numeric(data$incidenceRate) |
+    !is.numeric(data$cohortId) |
+    !is.numeric(as.numeric(data$calendarYear)) |
+    !is.character(data$databaseId)) {
     stop("Data types of some columns are not as expected.")
   }
-  
+
   if (data |>
-      dplyr::select("databaseId", "calendarYear", "cohortId") |>
-      nrow() != data |>
-      dplyr::select("databaseId", "calendarYear", "cohortId") |>
-      dplyr::distinct() |>
-      nrow()) {
+    dplyr::select("databaseId", "calendarYear", "cohortId") |>
+    nrow() != data |>
+    dplyr::select("databaseId", "calendarYear", "cohortId") |>
+    dplyr::distinct() |>
+    nrow()) {
     stop("data is not unique by databaseId, calendarYear, cohortId")
   }
 }
@@ -281,9 +285,11 @@ processannualizedCrudeIncidenceRateData <- function(annualizedCrudeIncidenceRate
     ) |>
     dplyr::mutate(calendarYear = as.Date(paste0(.data$calendarYear, "-06-01"))) |> # mid year
     dplyr::arrange(.data$cohortId, .data$databaseId, .data$calendarYear) |>
-    dplyr::mutate(zeroRecordLeadRemoved = 0,
-                  zeroRecordTrailRemoved = 0)
-  
+    dplyr::mutate(
+      zeroRecordLeadRemoved = 0,
+      zeroRecordTrailRemoved = 0
+    )
+
   if (removeOutlierZeroCounts) {
     outputDataFiltered <- outputData |>
       dplyr::group_by(.data$cohortId, .data$databaseId) |>
@@ -301,11 +307,11 @@ processannualizedCrudeIncidenceRateData <- function(annualizedCrudeIncidenceRate
         zeroRecordTrailRemoved = sum(.data$trailZeros) # Count trail zeros removed
       ) |>
       dplyr::filter(!(.data$leadZeros |
-                        .data$trailZeros)) |> # Remove rows that are leading or trailing zeros
+        .data$trailZeros)) |> # Remove rows that are leading or trailing zeros
       dplyr::select(-"isZero", -"leadZeros", -"trailZeros") |> # Clean up extra columns
       dplyr::ungroup()
   }
-  
+
   yearsWithNoRecords <- outputData |>
     dplyr::select("cohortId", "databaseId", "calendarYear") |>
     dplyr::distinct() |>
@@ -319,22 +325,24 @@ processannualizedCrudeIncidenceRateData <- function(annualizedCrudeIncidenceRate
     dplyr::select("cohortId", "databaseId", "year") |>
     dplyr::arrange(.data$cohortId, .data$databaseId, .data$year) |>
     dplyr::group_by(.data$cohortId, .data$databaseId) |>
-    dplyr::summarise(yearsWithNoCohortRecords = as.character(paste0(.data$year, collapse = ", ")),
-                     .groups = "keep") |>
+    dplyr::summarise(
+      yearsWithNoCohortRecords = as.character(paste0(.data$year, collapse = ", ")),
+      .groups = "keep"
+    ) |>
     dplyr::ungroup()
-  
+
   outputData <- outputDataFiltered |>
     dplyr::left_join(yearsWithNoRecords, by = c("cohortId", "databaseId"))
-  
+
   combos <- outputData |>
     dplyr::select("cohortId", "databaseId") |>
     dplyr::distinct()
-  
+
   outputDataByCombo <- c()
   for (i in (1:nrow(combos))) {
     outputDataByCombo[[i]] <- outputData |>
       dplyr::inner_join(combos[i, ], by = c("cohortId", "databaseId"))
-    
+
     if (all(
       outputDataByCombo[[i]]$zeroRecordLeadRemoved == 0,
       outputDataByCombo[[i]]$zeroRecordTrailRemoved == 0
@@ -345,11 +353,11 @@ processannualizedCrudeIncidenceRateData <- function(annualizedCrudeIncidenceRate
         dplyr::mutate(useYearData = as.integer(1))
     }
   }
-  
+
   outputData <- dplyr::bind_rows(outputDataByCombo) |>
     dplyr::arrange(.data$cohortId, .data$databaseId, .data$calendarYear)
-  
-  
+
+
   yearsWithUnstablePersonYears <- outputData |>
     dplyr::filter(.data$useYearData == 0) |>
     dplyr::select("cohortId", "databaseId", "calendarYear") |>
@@ -357,15 +365,18 @@ processannualizedCrudeIncidenceRateData <- function(annualizedCrudeIncidenceRate
     dplyr::arrange(.data$cohortId, .data$databaseId, .data$calendarYear) |>
     dplyr::group_by(.data$cohortId, .data$databaseId) |>
     dplyr::mutate(year = as.integer(format(.data$calendarYear, "%Y"))) |>
-    dplyr::summarise(yearsWithUnstablePersonYears = as.character(paste0(.data$year, collapse = ", ")),
-                     .groups = "keep") |>
+    dplyr::summarise(
+      yearsWithUnstablePersonYears = as.character(paste0(.data$year, collapse = ", ")),
+      .groups = "keep"
+    ) |>
     dplyr::ungroup()
-  
+
   outputData <- outputData |>
     dplyr::left_join(yearsWithUnstablePersonYears,
-                     by = c("cohortId", "databaseId"))
-  
-  
+      by = c("cohortId", "databaseId")
+    )
+
+
   return(outputData)
 }
 
@@ -378,18 +389,18 @@ checkFirstLastYearPersonYearStability <- function(data) {
       .data$calendarYear != max(.data$calendarYear),
       .data$calendarYear != min(.data$calendarYear)
     )
-  
+
   # Fit a linear model using trainData
   if (nrow(trainData) > 1) {
     # Ensure there are enough points to fit a model
-    model <- stats::lm(.data$personYears ~ .data$calendarYear, data = trainData)
-    
+    model <- stats::lm(personYears ~ calendarYear, data = trainData)
+
     # Calculate the residual standard error and significance threshold
     residualStandardError <- summary(model)$sigma
-    
+
     # keep a very high significance threshold of 2 SE
     significanceThreshold <- 2 * residualStandardError
-    
+
     # Predict the expected personYears for the last calendar year
     lastYear <- max(data$calendarYear)
     predictedPersonYearsLast <- stats::predict(model, newdata = data.frame(calendarYear = lastYear))
@@ -398,7 +409,7 @@ checkFirstLastYearPersonYearStability <- function(data) {
       dplyr::pull(.data$personYears)
     differenceActualToLast <- actualPersonYearsLast - predictedPersonYearsLast
     stableLast <- abs(differenceActualToLast) > significanceThreshold
-    
+
     # Predict the expected personYears for the first calendar year
     firstYear <- min(data$calendarYear)
     predictedPersonYearsFirst <- stats::predict(model, newdata = data.frame(calendarYear = firstYear))
@@ -407,20 +418,20 @@ checkFirstLastYearPersonYearStability <- function(data) {
       dplyr::pull(.data$personYears)
     differenceActualToFirst <- actualPersonYearsFirst - predictedPersonYearsFirst
     stableFirst <- abs(differenceActualToFirst) > significanceThreshold
-    
+
     outputTestData <- dplyr::tibble(
       calendarYear = c(lastYear, firstYear),
       useYearData = c(stableLast |> as.integer(), stableFirst |> as.integer())
     )
-    
+
     data <- data |>
       dplyr::left_join(outputTestData, by = c("calendarYear")) |>
       tidyr::replace_na(list(useYearData = 1))
-    
+
     # Return the stability result and difference
     return(data)
   } else {
     return(data |>
-             dplyr::mutate(useYearData = as.integer(NA)))
+      dplyr::mutate(useYearData = as.integer(NA)))
   }
 }
