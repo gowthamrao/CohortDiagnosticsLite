@@ -43,7 +43,7 @@ getAnnualizedCrudeIncidenceRate <-
       )
       on.exit(DatabaseConnector::disconnect(connection), add = TRUE)
     }
-
+    
     sql <-
       SqlRender::loadRenderTranslateSql(
         sqlFilename = "ComputeIncidenceRates.sql",
@@ -57,9 +57,12 @@ getAnnualizedCrudeIncidenceRate <-
         washout_period = washoutPeriod,
         cohort_id = cohortDefinitionId
       )
-
-    DatabaseConnector::executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
-
+    
+    DatabaseConnector::executeSql(connection,
+                                  sql,
+                                  progressBar = FALSE,
+                                  reportOverallTime = FALSE)
+    
     sql <- "SELECT * FROM #rates_summary;"
     ratesSummary <-
       DatabaseConnector::renderTranslateQuerySql(
@@ -70,7 +73,7 @@ getAnnualizedCrudeIncidenceRate <-
       ) |>
       tidyr::tibble() |>
       dplyr::mutate(cohortDefinitionId = !!cohortDefinitionId)
-
+    
     sql <- "DROP TABLE IF EXISTS #rates_summary;"
     DatabaseConnector::renderTranslateExecuteSql(
       connection = connection,
@@ -79,11 +82,11 @@ getAnnualizedCrudeIncidenceRate <-
       reportOverallTime = FALSE,
       tempEmulationSchema = tempEmulationSchema
     )
-
+    
     output <- ratesSummary |>
       dplyr::mutate(databaseId = !!databaseId) |>
       dplyr::mutate(incidenceRate = (.data$cohortCount / .data$personYears) * 1000) |>
-      dplyr::rename(cohortId = .data$cohortDefinitionId)
-
+      dplyr::rename(cohortId = "cohortDefinitionId")
+    
     return(output)
   }
