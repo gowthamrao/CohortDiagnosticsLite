@@ -1,6 +1,6 @@
 test_that("Invoke cohort generation", {
   cohortTableNames <- CohortGenerator::getCohortTableNames(cohortTable = "cohort")
-
+  
   # Next create the tables on the database
   CohortGenerator::createCohortTables(
     connectionDetails = connectionDetails,
@@ -8,7 +8,7 @@ test_that("Invoke cohort generation", {
     cohortDatabaseSchema = cohortDatabaseSchema,
     incremental = FALSE
   )
-
+  
   # Generate the cohort set
   CohortGenerator::generateCohortSet(
     connectionDetails = connectionDetails,
@@ -18,18 +18,17 @@ test_that("Invoke cohort generation", {
     cohortDefinitionSet = cohortDefinitionSet,
     incremental = FALSE
   )
-
+  
   ### cohort count
   cohortCount <- getCohortCounts(
     cohortIds = cohortIds,
     connectionDetails = connectionDetails,
     cohortDatabaseSchema = cohortDatabaseSchema,
-    cohortTable = cohortTableNames$cohortTable,
-    tempEmulationSchema = tempEmulationSchema
+    cohortTable = cohortTableNames$cohortTable
   )
-
+  
   testthat::expect_gt(object = nrow(cohortCount), expected = 0)
-
+  
   cohortInclusionRule <- getCohortInclusionRules(
     cohortIds = cohortIds,
     connectionDetails = connectionDetails,
@@ -37,9 +36,7 @@ test_that("Invoke cohort generation", {
     cohortTableNames = cohortTableNames,
     tempEmulationSchema = tempEmulationSchema
   )
-
-  testthat::expect_gt(
-    object = length(cohortInclusionRule),
-    expected = 0
-  )
+  
+  testthat::expect_gt(object = length(cohortInclusionRule),
+                      expected = 0)
 })
