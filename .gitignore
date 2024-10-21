@@ -6,3 +6,4 @@
 .Rprofile
 errorReportSql.txt
 *.sqlite
+/sql
