@@ -47,24 +47,27 @@ checkTemporalStabilityForannualizedCrudeIncidenceRateData <- function(annualized
         firstYearCensoredPersonYears = as.numeric(NA),
         lastYearToCensor = as.Date(NA),
         lastYearCensoredPersonYears = as.numeric(NA)
-      )
+      ) |>
+      dplyr::filter(cohortDatabaseIdCombinationTested == 1)
     
-    lastYear <- data |>
-      dplyr::filter(.data$useYearData == 0) |>
-      dplyr::filter(.data$calendarYear > min(data$calendarYear))
-    
-    if (nrow(lastYear) > 0) {
-      data$lastYearToCensor <- lastYear$calendarYear
-      data$lastYearCensoredPersonYears <- lastYear$personYears
-    }
-    
-    firstYear <- data |>
-      dplyr::filter(.data$useYearData == 0) |>
-      dplyr::filter(.data$calendarYear == min(data$calendarYear))
-    
-    if (nrow(firstYear) > 0) {
-      data$firstYearToCensor <- firstYear$calendarYear
-      data$firstYearCensoredPersonYears <- firstYear$personYears
+    if (nrow(data) > 0) {
+      lastYear <- data |>
+        dplyr::filter(.data$useYearData == 0) |>
+        dplyr::filter(.data$calendarYear == max(data$calendarYear))
+      
+      if (nrow(lastYear) > 0) {
+        data$lastYearToCensor <- lastYear$calendarYear
+        data$lastYearCensoredPersonYears <- lastYear$personYears
+      }
+      
+      firstYear <- data |>
+        dplyr::filter(.data$useYearData == 0) |>
+        dplyr::filter(.data$calendarYear == min(data$calendarYear))
+      
+      if (nrow(firstYear) > 0) {
+        data$firstYearToCensor <- firstYear$calendarYear
+        data$firstYearCensoredPersonYears <- firstYear$personYears
+      }
     }
     
     data <- data |>
@@ -324,9 +327,13 @@ processannualizedCrudeIncidenceRateData <- function(annualizedCrudeIncidenceRate
     dplyr::ungroup()
   
   outputData <- outputData |>
-    dplyr::left_join(outputDataFiltered |>
-                       dplyr::mutate(use = 1)) |>
-    tidyr::replace_na(replace = list(use = 0)) |>
+    dplyr::left_join(
+      outputDataFiltered |>
+        dplyr::select(cohortId, databaseId) |>
+        dplyr::distinct() |>
+        dplyr::mutate(cohortDatabaseIdCombinationTested = 1)
+    ) |>
+    tidyr::replace_na(replace = list(cohortDatabaseIdCombinationTested = 0)) |>
     dplyr::left_join(yearsWithNoRecords, by = c("cohortId", "databaseId"))
   
   combos <- outputData |>
